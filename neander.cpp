@@ -1,15 +1,10 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
-
-    /*enum indices {
-
-    }
-
-    bool sinais[20]{0};
-    sinais[rx]*/
-
-    //MEM memoria;
+#include <string>
+#include <map>
+using std::string;
+using std::map;
 
 struct MEM{
     
@@ -31,29 +26,33 @@ struct PC{ int p=0; };
 
 struct ULA{
 
-    void add(int &RA, int mem_end) {
-        RA = RA+mem_end;
+    void add(REG &RA, int mem_val) {
+        int a = std::stoi(RA.r);
+        RA.r = std::to_string(a+mem_val);
     }
 
-    int sub(int a, int b) {
-        return a-b;
+    void sub(REG &RA, int mem_val) {
+        int a = std::stoi(RA.r);
+        RA.r = std::to_string(a-mem_val);
     }
 
-    int andy(int a, int b) {
-        //to do
+    void andy(REG &RA, int mem_val) {
+        int a = std::stoi(RA.r);
+        RA.r = std::to_string(a&mem_val);   
+    }
+    void ore(REG &RA, int mem_val) {
+        int a = std::stoi(RA.r);
+        RA.r = std::to_string(a|mem_val); 
     }
 
-    int ore(int a, int b) {
-        //to do
-    }
-
-    int note(int a) {
-
+    void note(REG &RA) {
+        int a = std::stoi(RA.r);
+        RA.r = std::to_string(~a);
     }
 
 };
 
-class REG{
+struct REG{
 
     std::string r;
 
@@ -76,10 +75,10 @@ class Neander{
 
     MEM memory;
     REM rem;
-    int program_counter;
+    PC program_counter;
     ULA ula;
 
-    std::string RA;
+    REG ra;
 
 
 
@@ -93,19 +92,54 @@ class Neander{
     }
 
     void jump(int a) {
-        program_counter = a;
+        program_counter.p = a;
     }
 
     void jn(int end) {
-        if (N == 0) {
-            program_counter = end;
+        if (N == 1) {
+            program_counter.p = end;
         }
     }
 
     void jz(int end) {
-        if (Z == 0) {
-            program_counter = end;
+        if (Z == 1) {
+            program_counter.p = end;
         }
+    }
+
+    void add(REG &r, std::string mem_end) {
+        int b = std::stoi(mem_end);
+
+        ula.add(r, b);
+
+    }
+
+    void sub(REG &r, std::string mem_end) {
+        int b = std::stoi(mem_end);
+
+        ula.sub(r, b);
+
+    }
+
+    void andy(REG &r, std::string mem_end) {
+        int b = std::stoi(mem_end);
+
+        ula.andy(r, b);
+
+    }
+
+    void ore(REG &r, std::string mem_end) {
+        int b = std::stoi(mem_end);
+
+        ula.ore(r, b);
+
+    }
+
+    void note(REG &r, std::string mem_end) {
+        int b = std::stoi(mem_end);
+
+        ula.note(r);
+
     }
 
     void hlt() {
@@ -114,6 +148,21 @@ class Neander{
 };
 
 struct CLK{ int c=0; };
+
+void fill_dictionary(map<string, string> &mapa){
+    mapa.insert({"nop", "0000"});
+    mapa.insert({"sta", "0001"});
+    mapa.insert({"lda", "0010"});
+    mapa.insert({"add","0011"});
+    mapa.insert({"or", "0100"});
+    mapa.insert({"and","0101"});
+    mapa.insert({"not", "0110"});
+    mapa.insert({"jmp","1000"});
+    mapa.insert({"jn","1001"});
+    mapa.insert({"jz", "1010"});
+    mapa.insert({"hlt", "1111"});
+}
+    
 int main(int argc, char* argv[]){
 
     if (argc == 1) {
@@ -127,9 +176,16 @@ int main(int argc, char* argv[]){
         std::cout << "error opening input file!!!";
         return 1;
     }
-
-    // traduzir o assumbly pra uma sequencia de passos
-
+    string line;
+    Neander processador;
+    map<string, string> dicionario;
+    fill_dictionary(dicionario);
+    while(std::getline(assembly, line)){
+        if(line.empty()){
+            continue;
+        }
+        
+    }
     
     
 }

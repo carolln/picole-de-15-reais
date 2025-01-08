@@ -21,7 +21,7 @@ struct MEM{
 struct REM{ // registador de palavra de instrucao
 
     std::string palavra_de_inst;
-    
+
     /*void sta(int idx, std::string a) {
         //memoria.M[idx] = a;
     }*/
@@ -58,15 +58,15 @@ struct ULA{
     }
 
     int andy(int a, int b) {
-        //to do
+        return a & b;
     }
 
     int ore(int a, int b) {
-        //to do
+        return a | b;
     }
 
     int note(int a) {
-
+        return ~a;
     }
 
 };
@@ -102,12 +102,12 @@ class Cesar{
 
 
 
-    std::string read(int idx) {
+    std::string read(REG &r, int idx) {
         return rdm.read(idx, memory.M);
     }
 
-    void write(int idx, std::string content) {
-        rdm.write(idx, content, memory.M);
+    void write(REG &r, int idx, std::string content) {
+        rdm.write(idx, r.r, memory.M);
     }
 
     void jump(int a) {
@@ -119,6 +119,12 @@ class Cesar{
             program_counter.p = end;
         }
     }
+
+    void add() {
+        
+    }
+
+
 
     void jz(int end) {
         if (Z == 1) {
