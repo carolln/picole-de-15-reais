@@ -18,14 +18,32 @@ struct MEM{
     
 };
 
-struct REM{
+struct REM{ // registador de palavra de instrucao
 
-    void sta(int idx, std::string a) {
+    std::string palavra_de_inst;
+    
+    /*void sta(int idx, std::string a) {
         //memoria.M[idx] = a;
-    }
+    }*/
 };
 
-struct RDM{};
+struct RDM{ // read memory
+
+    // how tf am i gonna make this change the memory content IF I HAVE NO ACCESS TO THE MEMORY AAAAAAAAAAAA
+    // e se eu passar a memoria como referencia
+
+    std::string read(int idx, std::string mem[]) {
+        return mem[idx];
+    }
+
+    void write(int idx, std::string content, std::string mem[]) {
+        mem[idx] = content;
+    }
+
+
+
+
+};
 
 struct PC{ int p=0; };
 
@@ -53,14 +71,12 @@ struct ULA{
 
 };
 
-class REG{
-
+struct REG {
     std::string r;
-
 };
 
 
-class Neander{
+class Cesar{
 
     enum states {
         busca,
@@ -76,35 +92,37 @@ class Neander{
 
     MEM memory;
     REM rem;
-    int program_counter;
+    RDM rdm;
+    PC program_counter;
     ULA ula;
-
-    std::string RA;
+    REG ra;
+    REG rb;
+    REG rx;
 
 
 
 
     std::string read(int idx) {
-        return memory.M[idx];
+        return rdm.read(idx, memory.M);
     }
 
     void write(int idx, std::string content) {
-        memory.M[idx] = content;
+        rdm.write(idx, content, memory.M);
     }
 
     void jump(int a) {
-        program_counter = a;
+        program_counter.p = a;
     }
 
     void jn(int end) {
-        if (N == 0) {
-            program_counter = end;
+        if (N == 1) {
+            program_counter.p = end;
         }
     }
 
     void jz(int end) {
-        if (Z == 0) {
-            program_counter = end;
+        if (Z == 1) {
+            program_counter.p = end;
         }
     }
 
