@@ -3,8 +3,17 @@
 #include <fstream>
 #include <string>
 #include <map>
+#include <sstream>
+using std::vector;
 using std::string;
 using std::map;
+
+
+struct REG{
+
+    std::string r;
+
+};
 
 struct MEM{
     
@@ -22,7 +31,19 @@ struct REM{
 
 struct RDM{};
 
-struct PC{ int p=0; };
+struct PC{
+    
+    int p=0; 
+
+    void increment() {
+        p++;
+    }
+
+    void receive (int n) {
+        p = n;
+    }
+
+};
 
 struct ULA{
 
@@ -52,11 +73,22 @@ struct ULA{
 
 };
 
-struct REG{
 
-    std::string r;
+std::vector<std::string> tokenize (std::string line) {
 
-};
+    std::vector<std::string> a;
+    std::stringstream oss{line};
+    std::string b;
+
+    //line;
+
+    while (oss >> b) {
+        a.emplace_back(b);
+    }
+
+    return a;
+
+}
 
 
 class Neander{
@@ -145,6 +177,47 @@ class Neander{
     void hlt() {
         exit(0);
     }
+
+    void prepare(std::ifstream &assembly , string line) {
+
+        int cont = 0;
+
+
+        while(std::getline(assembly, line)){
+            if(line.empty()){
+                continue;
+            }
+
+            std::vector<std::string> a = tokenize(line);
+
+            memory.M[cont] = a[0];
+            cont++;
+            memory.M[cont] = a[2];
+            cont++;
+
+            int b = stoi(a[2]);
+
+            memory.M[b] = 250;
+
+            //processador.
+
+            
+            
+        }
+
+        
+
+    }
+
+    void ciclo_de_busca(vector<string> ) {
+
+        // testar o primeiro da string pra fazer
+        //if()
+    }
+
+
+
+
 };
 
 struct CLK{ int c=0; };
@@ -162,6 +235,7 @@ void fill_dictionary(map<string, string> &mapa){
     mapa.insert({"jz", "1010"});
     mapa.insert({"hlt", "1111"});
 }
+
     
 int main(int argc, char* argv[]){
 
@@ -180,10 +254,19 @@ int main(int argc, char* argv[]){
     Neander processador;
     map<string, string> dicionario;
     fill_dictionary(dicionario);
+
+    // como a gente faria a parte de colocar na memória?
+    // teríamos que codar no assembly:
     while(std::getline(assembly, line)){
         if(line.empty()){
             continue;
         }
+
+        std::vector<std::string> a = tokenize(line);
+
+        //processador.
+
+        
         
     }
     
