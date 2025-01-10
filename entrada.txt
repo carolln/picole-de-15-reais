@@ -1,2 +1,5 @@
-ldr a 80
-add a 81
+lda 128
+add 128
+nop
+nop
+hlt

@@ -1,0 +1,7 @@
+somar duas variáveis de 8 bits
+as variaveis estão no endereço de memoria 128 e 129
+salve esse resultado na posição 130
+lda 128
+add 129
+sta 130
+hlt
