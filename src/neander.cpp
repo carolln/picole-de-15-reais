@@ -37,11 +37,15 @@ class MEM{
 
 class REM{
 
-    string rem;
+    int rem;
     
     public:
-    void str(std::string a) {
+    void str(int a) {
         rem = a;
+    }
+
+    int return_rem() {
+        return rem;
     }
 };
 
@@ -50,13 +54,24 @@ class RDM{
     string rdm;
     
     public:
-    std::string read(MEM m, int idx) {
+
+    void str(string a) {
+        rdm = a;
+    }
+
+    string return_rdm() {
+        return rdm;
+    }
+
+
+
+    /*std::string read(MEM m, int idx) {
         m.read(idx);
     }
 
-    void write(MEM m, string s, int idx) {
+    void str(MEM m, string s, int idx) {
         m.write(s, idx);
-    }
+    }*/
 
     string return_rdm() {
         return rdm;
@@ -111,6 +126,38 @@ class ULA{
 
 };
 
+class MUX{
+
+    bool sel;
+
+    public:
+
+    void select(bool a) {
+        sel = a;
+    }
+
+    int return_sel() {
+        return sel;
+    }
+
+};
+
+class OPCODE{
+
+    string operation;
+
+    public:
+
+    void set_operation(string b) {
+        operation = b;
+    }
+
+    string return_operation() {
+        return operation;
+    }
+
+};
+
 
 
 
@@ -129,8 +176,13 @@ class Neander{
         REM rem;
         PC program_count;
         REG ac;
+        MUX multiplexador;
+        OPCODE operation_code;
     };
     class UC{
+
+        public:
+
         enum sinais_controle{
             cargaRI=0,
             cargaNZ,
@@ -145,52 +197,94 @@ class Neander{
             write
             
         };
-
+        
         sinais_controle sc;
-    class MUX{
+        //class MUX{
         
     };
+
+    bool N = 0;
+    bool Z = 0;
+    states state;    
     
+    
+    PO parte_operativa;
+    UC uni_cont;
+    PC contador;
 
-        void ciclo_de_busca (PO parte_operativa) {
+    
+    
+        void ciclo_de_busca () {
 
-            switch (sc)
+            // can we do this gambiarra?
+
+            bool a = 0;
+            string s;
+
+
+
+            switch (uni_cont.sc)
             {
-            case sinais_controle::incrementaPC:
+            case uni_cont.sinais_controle::incrementaPC:    
                 parte_operativa.program_count.increment();
-                sc = sinais_controle::sel;
+                uni_cont.sc = uni_cont.sinais_controle::sel;
                 break;
             
-            case sinais_controle::sel:
-            // wtffffff how are we gonna do this
-                parte_operativa.program_count.increment();
-                sc = sinais_controle::sel;
+            case uni_cont.sinais_controle::sel:
+
+                // DUVIDA: se fizermos dessa maneira, vai parecer um registrador ao invés de um selecionador
+                // se fizermos chamando funções diferentes dependo da bool, vai parecer um algoritmo :(
+
+                parte_operativa.multiplexador.select(a);
+                uni_cont.sc = uni_cont.sinais_controle::cargaREM;
                 break;
             
-            case sinais_controle::cargaREM:
-                parte_operativa.rem.str(std::to_string(parte_operativa.program_count.return_p()));
-                sc = sinais_controle::sel;
+            case uni_cont.sinais_controle::cargaREM:
+
+                if (parte_operativa.multiplexador.return_sel() == 0) { // viemos do pc
+                    parte_operativa.rem.str(parte_operativa.program_count.return_p()-1); // precisamos desse -1 neh?
+                }
+
+                else {
+                    parte_operativa.rem.str(std::stoi(parte_operativa.readmem.return_rdm()));
+                }
+
+                uni_cont.sc = uni_cont.sinais_controle::read; // i THINK it needs to be read?
                 break;
             
-            case sinais_controle::read:
-                //parte_operativa.
-                //sc = sinais_controle::sel;
+            case uni_cont.sinais_controle::read:
+
+                // DUVIDA:
+                // a gente coloca uma string s pra podermos guardar o que foi lido
+                // ou
+                // uma string "temp" pra fazer parte da classe
+                // ou
+                // só chama a função return de novo (mas aí o read nao vai ter servido de nada além de contar ciclo de relogio)
+
+                s = parte_operativa.memoria.read(parte_operativa.rem.return_rem());
+
+                uni_cont.sc = uni_cont.sinais_controle::cargaRDM;
                 break;
             
-            case sinais_controle::write:
-                //string a = parte_operativa.program_count.return_p()
-                parte_operativa.memoria.write(parte_operativa.readmem.return_rdm());
-                sc = sinais_controle::sel;
-                break;
-            
-            case sinais_controle::cargaRDM:
-                parte_operativa.rem.str();
-                sc = sinais_controle::sel;
+            case uni_cont.sinais_controle::cargaRDM:
+
+                // colocar o que foi lido na rdm
+
+                parte_operativa.readmem.str(s);
+
+                if (a == 0) { // indo pra a segunda volta
+                    a = 1;
+                    uni_cont.sc = uni_cont.sinais_controle::cargaRI;
+                }
+                else { // a == 0; acabamos
+
+                }
+
                 break;
 
-            case sinais_controle::cargaRI:
-                parte_operativa.rem.str();
-                sc = sinais_controle::sel;
+            case uni_cont.sinais_controle::cargaRI:
+                parte_operativa.operation_code.set_operation(parte_operativa.readmem.return_rdm());
+                uni_cont.sc = uni_cont.sinais_controle::incrementaPC;
                 break;
             
             
@@ -200,23 +294,23 @@ class Neander{
 
         }
 
-        void ciclo_de_op () {
+        void ciclo_de_exe () {
 
-            switch (sc)
+            switch (uni_cont.sc)
             {
-            case sinais_controle::selUAL:
+            case uni_cont.sinais_controle::selUAL:
                 //parte_operativa.rem.str();
-                sc = sinais_controle::sel;
+                uni_cont.sc = uni_cont.sinais_controle::sel;
                 break;
             
-            case sinais_controle::cargaAC:
+            case uni_cont.sinais_controle::cargaAC:
                 //parte_operativa.rem.str();
-                sc = sinais_controle::sel;
+                uni_cont.sc = uni_cont.sinais_controle::sel;
                 break;
             
-            case sinais_controle::cargaNZ:
+            case uni_cont.sinais_controle::cargaNZ:
                 //parte_operativa.rem.str();
-                sc = sinais_controle::sel;
+                uni_cont.sc = uni_cont.sinais_controle::sel;
                 break;
             
             
@@ -229,22 +323,14 @@ class Neander{
         void sinais_de_controle () {
 
             ciclo_de_busca();
-            ciclo_de_op();
+            ciclo_de_exe();
 
         }
 
 
 
 
-    };
-    bool N = 0;
-    bool Z = 0;
-    states state;    
     
-    
-    PO parte_operativa;
-    UC uni_cont;
-    PC contador;
 
     void print_memory(){
         int count=0;
@@ -252,13 +338,13 @@ class Neander{
             std::cout << count << ": " << e << "\n";
         }
     }
-    std::string read(int idx) {
+    /*std::string read(int idx) {
         return parte_operativa.carga_mem.read(parte_operativa.memoria, idx);
     }
 
     void write(int idx, std::string content) {
         parte_operativa.carga_mem.write(parte_operativa.memoria, content, idx);
-    }
+    }*/
 
     void jump(int a) {
         //program_counter.p = a;
@@ -395,7 +481,7 @@ int main(int argc, char* argv[]){
         if(line.empty()){
             continue;
         }
-        vector<string> inputs = split(line);
+        vector<string> inputs = split(line, " ");
         string codigo = decode(inputs[0], dicionario);
         if(codigo=="NULLSTRING"){
             std::cout << "Operação invalida na linha: " << cont << "\n";
