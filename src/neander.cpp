@@ -73,9 +73,7 @@ class RDM{
         m.write(s, idx);
     }*/
 
-    string return_rdm() {
-        return rdm;
-    }
+    
     
 };
 
@@ -211,8 +209,11 @@ class Neander{
     PO parte_operativa;
     UC uni_cont;
     PC contador;
-
-    
+    bool is_program_over = false;
+    bool is_ciclo_busca_over = false;
+    bool busca_over(){
+        return is_ciclo_busca_over;
+    }
     
         void ciclo_de_busca () {
 
@@ -401,7 +402,7 @@ class Neander{
     }
 
     void hlt() {
-        exit(0);
+        is_program_over=true;
     }
 
     void prepare(std::ifstream &assembly , string line) {
@@ -444,7 +445,10 @@ class Neander{
         // testar o primeiro da string pra fazer
         //if()
     }
-
+    
+    bool program_over(){
+        return is_program_over;
+    }
 
 
 
@@ -489,7 +493,7 @@ int main(int argc, char* argv[]){
         }
         processador.parte_operativa.memoria.M[cont] = codigo;
         cont++;
-        if(codigo == "nop" or codigo == "not" or codigo == "hlt"){
+        if(codigo == "0" or codigo == "6" or codigo == "15"){
             continue;
         }
         else{
@@ -519,6 +523,13 @@ int main(int argc, char* argv[]){
         }
     }
     //use esse espaço para preencher a memoria com as variáveis nas posições 128-255
+    processador.parte_operativa.memoria.M[128]="10";
+    
+    while(not processador.program_over()){
+        while(not processador.busca_over()){
+            processador.ciclo_de_busca();
+        }
+    }
     
     
 }
