@@ -1,0 +1,9 @@
+#variaveis no 128 e 129, resultado no 130, 131 contem o numero 1 para somar ao complemento de 2
+#mem(128)-mem(129)
+#neander
+lda 129
+not
+add 131
+add 128
+sta 130
+hlt

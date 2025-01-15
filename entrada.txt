@@ -1,5 +1,6 @@
 lda 128
 add 128
+sta 129
 nop
 nop
 hlt

@@ -1,0 +1,6 @@
+#variaveis no 128 e 129, resultado no 130
+#neander
+lda 128
+add 129
+sta 130
+hlt

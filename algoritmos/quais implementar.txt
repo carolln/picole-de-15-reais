@@ -1,0 +1,11 @@
+2.1- Somar 2 variáveis de 8 bits;
+2.2- Somar 2 variáveis de 16 bits (somente
+Ramses e Cesar);
+2.3- Subtrair 2 variáveis de 8 bits;
+2.4- Chamar o programa 2.2 como uma sub-
+rotina por um programa principal (somente
+Ramses e Cesar); a sub-rotina deve receber os
+operandos fonte como parâmetros e retornar o
+resultado;
+2.5- Determinar o maior valor armazenado em
+um vetor de 32 posições
