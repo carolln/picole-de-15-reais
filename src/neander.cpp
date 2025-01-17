@@ -6,7 +6,7 @@ using std::map;
 
 class REG{
     public:
-    std::string r;
+    std::string r = "";
 
     string return_reg() {
         return r;
@@ -215,11 +215,6 @@ class Neander{
         
         sinais_controle sc = sinais_controle::incrementaPC;
         
-        void halt() {
-            std::cout << "seems like we've reached a halt command! oh well! see ya\n";
-            exit(0);
-
-        }
         
     };
 
@@ -238,6 +233,15 @@ class Neander{
     bool is_ciclo_busca_over = false;
     bool is_ciclo_exe_over = false;
     string seguir;
+
+    void halt() {
+        std::cout << "seems like we've reached a halt command! oh well! see ya\n";
+        is_ciclo_busca_over = 1;
+        is_ciclo_exe_over = 1;
+        is_program_over = 1;
+        exit(0);
+
+    }
 
     void welcome() {
         std::cout << "bem vindo ao simulador neander!!!!!\n\n";
@@ -261,48 +265,39 @@ class Neander{
 
         std::cout << "DADOS ATUAIS:\n";
 
-        std::cout << "Current state: ";
+        std::cout << "Clock: " << clock << "\n";
+        std::cout << "Contador de programa: " << parte_operativa.program_count.p << "\n";
+        //std::cout << "registrador de instrução: " << parte_operativa.r;
+        std::cout << "Flag de controle N:" << N << "\n";
+        std::cout << "Flag de controle Z: " << Z << "\n";
+        std::cout << "Acumulador (Registrador A): " << parte_operativa.ac.return_reg() << "\n";
+        //std::cout << "Memória de dados (Registrador de memória): \n"; // << 
+        std::cout << "Operação executada na ULA: ";
 
-        switch (uni_cont.sc)
+        switch (std::stoi(parte_operativa.operation_code.return_operation()))
         {
-        case 0:
-            std::cout << "cargaRI\n";
-            break;
-        
         case 1:
-            std::cout << "cargaNZ\n";
+            std::cout << "sta\n";
             break;
         
         case 2:
-            std::cout << "cargaRDM\n";
+            std::cout << "lda\n";
             break;
         
         case 3:
-            std::cout << "cargaREM\n";
+            std::cout << "add\n";
             break;
         
         case 4:
-            std::cout << "cargaPC\n";
+            std::cout << "or\n";
             break;
         
         case 5:
-            std::cout << "incrementaPC\n";
+            std::cout << "and\n";
             break;
         
         case 6:
-            std::cout << "cargaAC\n";
-            break;
-        
-        case 8:
-            std::cout << "sel\n";
-            break;
-        
-        case 9:
-            std::cout << "read\n";
-            break;
-        
-        case 10:
-            std::cout << "write\n";
+            std::cout << "not\n";
             break;
         
         default:
@@ -310,33 +305,8 @@ class Neander{
             break;
         }
 
-        //({"nop", "0"});
-        //({"sta", "1"}); -
-        //({"lda", "2"}); -
-        //({"add","3"}); -
-        //({"or", "4"}); -
-        //({"and","5"}); -
-        //({"not", "6"}); -
-        //({"jmp","8"}); -- vai direto pro pc
-        //({"jn","9"}); 
-        //({"jz", "10"});
-        //({"hlt", "15"});
 
-
-
-
-
-
-
-
-        std::cout << "Contador de programa: " << parte_operativa.program_count.p << "\n";
-        //std::cout << "registrador de instrução: " << parte_operativa.r;
-        std::cout << "Flag de controle N:" << N << "\n";
-        std::cout << "Flag de controle Z: " << Z << "\n";
-        std::cout << "Acumulador (Registrador A): " << parte_operativa.ac.return_reg() << "\n";
-        std::cout << "Memória de dados (Registrador de memória): \n"; // << 
-        std::cout << "Operação executada na ULA: ";
-        
+        std::cout << "Opcode: ";
         
         switch (std::stoi(parte_operativa.operation_code.return_operation()))
         {
@@ -407,6 +377,40 @@ class Neander{
     }
 
 
+    void print_final() {
+
+        std::cin >> seguir;
+
+        std::cout << "DADOS FINAIS:\n";
+
+
+
+        std::cout << "Clock final: " << clock << "\n";
+        std::cout << "Contador de programa final: " << parte_operativa.program_count.p << "\n";
+        //std::cout << "registrador de instrução: " << parte_operativa.r;
+        //std::cout << "Flag de controle N:" << N << "\n";
+        //std::cout << "Flag de controle Z: " << Z << "\n";
+        std::cout << "Acumulador (Registrador A) final: " << parte_operativa.ac.return_reg() << "\n";
+        //std::cout << "Memória de dados (Registrador de memória): \n"; // << 
+
+        
+        
+
+        //({"nop", "0"});
+        //({"sta", "1"}); -
+        //({"lda", "2"}); -
+        //({"add","3"}); -
+        //({"or", "4"}); -
+        //({"and","5"}); -
+        //({"not", "6"}); -
+        //({"jmp","8"}); -- vai direto pro pc
+        //({"jn","9"}); 
+        //({"jz", "10"});
+        //({"hlt", "15"});
+
+    }
+
+
 
     bool busca_over(){
         return is_ciclo_busca_over;
@@ -446,7 +450,7 @@ class Neander{
                 }
 
                 else {
-                    parte_operativa.rem.str(std::stoi(parte_operativa.readmem.return_rdm()));
+                    parte_operativa.rem.str(parte_operativa.program_count.return_p()-1); // THIS MAY BE WRONG!!!!!!
                 }
 
                 uni_cont.sc = uni_cont.sinais_controle::read; // i THINK it needs to be read?
@@ -474,16 +478,16 @@ class Neander{
 
                 if (selecionador == 0) { // indo pra a segunda volta
                     if (armazenamento == "15") {
-                        uni_cont.halt();
+                        halt();
                     }
 
-                    else if (armazenamento == "0") {
+                    else if (armazenamento == "0") { // nop
                         is_ciclo_busca_over = 1;
                         is_ciclo_exe_over = 1;
                         uni_cont.sc = uni_cont.sinais_controle::incrementaPC;
                     }
 
-                    else if (armazenamento == "6") { // eh um not
+                    else if (armazenamento == "6") { //not
                         is_ciclo_busca_over = 1;
                         uni_cont.sc = uni_cont.sinais_controle::selUAL;
                     }
@@ -545,6 +549,7 @@ class Neander{
                     std::cout << "oxe nera pra entrar aqui nao...\n";
 
                 }
+                break;
 
             
             case uni_cont.sinais_controle::read:
@@ -568,6 +573,7 @@ class Neander{
                     // NOP
                     clock+=1;
                     is_ciclo_exe_over = 1;
+                    uni_cont.sc = uni_cont.sinais_controle::incrementaPC;
                     
                 }
                 else if (parte_operativa.operation_code.return_operation() == "1"){
@@ -575,7 +581,7 @@ class Neander{
                     uni_cont.sc = uni_cont.sinais_controle::write;
                     clock+=1;
                 }
-                else if (parte_operativa.operation_code.return_operation() == "8"){
+                else if (parte_operativa.operation_code.return_operation() == "8"){ // jmp
                     uni_cont.sc = uni_cont.sinais_controle::cargaPC;
                     clock+=1;
                 }
@@ -612,6 +618,7 @@ class Neander{
 
                 if (parte_operativa.operation_code.return_operation() == "1") { // sta
                     // do nothing. this is just a pathway
+                    uni_cont.sc = uni_cont.sinais_controle::cargaAC;
                 }
                 else if (parte_operativa.operation_code.return_operation() == "2") { //lda
                     parte_operativa.unidade_arit.load(armazenamento);
@@ -661,7 +668,7 @@ class Neander{
 
                 else {
                     parte_operativa.ac.receive(std::to_string(parte_operativa.unidade_arit.result)); // isso eh para load, add, sub, and, or, not
-                    uni_cont.sc = uni_cont.sinais_controle::sel;
+                    uni_cont.sc = uni_cont.sinais_controle::incrementaPC;
                     is_ciclo_exe_over = 1;
 
                 }
@@ -692,6 +699,7 @@ class Neander{
             
                 parte_operativa.memoria.write(parte_operativa.ac.return_reg(), std::stoi(parte_operativa.readmem.return_rdm()));
                 uni_cont.sc = uni_cont.sinais_controle::incrementaPC;
+                is_ciclo_exe_over = 1;
                 break;
             
             
@@ -844,7 +852,8 @@ int main(int argc, char* argv[]){
     }
     //use esse espaço para preencher a memoria com as variáveis nas posições 128-255
     processador.parte_operativa.memoria.M[128]="10";
-    processador.parte_operativa.memoria.M[129]="5";
+    processador.parte_operativa.memoria.M[129]="35";
+    std::cout << "BEM VINDO À SIMULAÇÃO DO PROCESSADOR NEANDER\n\naperte qualquer letra + <enter> para começar a simulação\n\n\n";
     
     while(not processador.program_over()){
         while(not processador.busca_over()){
@@ -859,6 +868,9 @@ int main(int argc, char* argv[]){
         processador.selecionador = 0;
         processador.is_ciclo_exe_over=false;
     }
+
+    processador.print_final();
+
 
     
 }
