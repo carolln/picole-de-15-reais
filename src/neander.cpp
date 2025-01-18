@@ -239,7 +239,6 @@ class Neander{
         is_ciclo_busca_over = 1;
         is_ciclo_exe_over = 1;
         is_program_over = 1;
-        exit(0);
 
     }
 
@@ -263,12 +262,12 @@ class Neander{
 
         std::cin >> seguir;
 
-        std::cout << "DADOS ATUAIS:\n";
+        std::cout << "\n\nDADOS ATUAIS:\n\n";
 
         std::cout << "Clock: " << clock << "\n";
         std::cout << "Contador de programa: " << parte_operativa.program_count.p << "\n";
         //std::cout << "registrador de instrução: " << parte_operativa.r;
-        std::cout << "Flag de controle N:" << N << "\n";
+        std::cout << "Flag de controle N: " << N << "\n";
         std::cout << "Flag de controle Z: " << Z << "\n";
         std::cout << "Acumulador (Registrador A): " << parte_operativa.ac.return_reg() << "\n";
         //std::cout << "Memória de dados (Registrador de memória): \n"; // << 
@@ -379,9 +378,8 @@ class Neander{
 
     void print_final() {
 
-        std::cin >> seguir;
 
-        std::cout << "DADOS FINAIS:\n";
+        std::cout << "\nDADOS FINAIS:\n";
 
 
 
@@ -458,6 +456,8 @@ class Neander{
             
             case uni_cont.sinais_controle::read:
 
+                clock+=3;
+
                 // DUVIDA:
                 // a gente coloca uma string s pra podermos guardar o que foi lido
                 // ou
@@ -479,17 +479,6 @@ class Neander{
                 if (selecionador == 0) { // indo pra a segunda volta
                     if (armazenamento == "15") {
                         halt();
-                    }
-
-                    else if (armazenamento == "0") { // nop
-                        is_ciclo_busca_over = 1;
-                        is_ciclo_exe_over = 1;
-                        uni_cont.sc = uni_cont.sinais_controle::incrementaPC;
-                    }
-
-                    else if (armazenamento == "6") { //not
-                        is_ciclo_busca_over = 1;
-                        uni_cont.sc = uni_cont.sinais_controle::selUAL;
                     }
 
                     else {
@@ -518,7 +507,22 @@ class Neander{
 
             case uni_cont.sinais_controle::cargaRI:
                 parte_operativa.operation_code.set_operation(parte_operativa.readmem.return_rdm());
-                uni_cont.sc = uni_cont.sinais_controle::incrementaPC;
+
+                if (parte_operativa.operation_code.return_operation() == "0") { // nop
+                    is_ciclo_busca_over = 1;
+                    is_ciclo_exe_over = 1;
+                    uni_cont.sc = uni_cont.sinais_controle::incrementaPC;
+                }
+
+                else if (parte_operativa.operation_code.return_operation() == "6") { //not
+                    is_ciclo_busca_over = 1;
+                    uni_cont.sc = uni_cont.sinais_controle::selUAL;
+                }
+
+                else {
+                    uni_cont.sc = uni_cont.sinais_controle::incrementaPC;
+                }
+
                 break;
             
             
@@ -553,6 +557,8 @@ class Neander{
 
             
             case uni_cont.sinais_controle::read:
+
+                clock+=3;
                 
                 armazenamento = parte_operativa.memoria.read(parte_operativa.rem.return_rem());
                 uni_cont.sc = uni_cont.sinais_controle::cargaRDM;
@@ -577,9 +583,9 @@ class Neander{
                     
                 }
                 else if (parte_operativa.operation_code.return_operation() == "1"){
-                    parte_operativa.readmem.str(parte_operativa.ac.return_reg());
+                    //parte_operativa.readmem.str(parte_operativa.ac.return_reg());
                     uni_cont.sc = uni_cont.sinais_controle::write;
-                    clock+=1;
+                    //clock+=1;
                 }
                 else if (parte_operativa.operation_code.return_operation() == "8"){ // jmp
                     uni_cont.sc = uni_cont.sinais_controle::cargaPC;
@@ -595,7 +601,8 @@ class Neander{
                     clock+=1;
                     if(Z)
                     {
-                        parte_operativa.program_count.receive(std::stoi(parte_operativa.readmem.return_rdm()));
+                        uni_cont.sc = uni_cont.sinais_controle::cargaPC;
+                        //parte_operativa.program_count.receive(std::stoi(parte_operativa.readmem.return_rdm()));
                     }
                 }
                 else if (parte_operativa.operation_code.return_operation() == "15"){ // acho melhor a gente cuidar disso la no ciclo de busca
@@ -603,7 +610,7 @@ class Neander{
                 }
 
                 else { // eh 1-6 ! vamos para a ula
-                    clock+=2;
+                    //clock+=2;
 
                     uni_cont.sc = uni_cont.sinais_controle::selUAL;
                     selecionador = 1;
@@ -615,6 +622,7 @@ class Neander{
 
                 N = 0; // perguntar a kreutz about this - se a ula usa n e z e tals tipo a gente pode setar aqui?
                 Z = 0;
+                clock+=1;
 
                 if (parte_operativa.operation_code.return_operation() == "1") { // sta
                     // do nothing. this is just a pathway
@@ -696,7 +704,8 @@ class Neander{
                 break;
             
             case uni_cont.sinais_controle::write:
-            
+
+                clock+=3;
                 parte_operativa.memoria.write(parte_operativa.ac.return_reg(), std::stoi(parte_operativa.readmem.return_rdm()));
                 uni_cont.sc = uni_cont.sinais_controle::incrementaPC;
                 is_ciclo_exe_over = 1;
@@ -853,6 +862,8 @@ int main(int argc, char* argv[]){
     //use esse espaço para preencher a memoria com as variáveis nas posições 128-255
     processador.parte_operativa.memoria.M[128]="10";
     processador.parte_operativa.memoria.M[129]="35";
+    processador.parte_operativa.memoria.M[131]="5";
+
     std::cout << "BEM VINDO À SIMULAÇÃO DO PROCESSADOR NEANDER\n\naperte qualquer letra + <enter> para começar a simulação\n\n\n";
     
     while(not processador.program_over()){
@@ -864,7 +875,10 @@ int main(int argc, char* argv[]){
         while (not processador.exe_over()) {
             processador.ciclo_de_exe();
         }
-        processador.print();
+
+        if (not processador.program_over()) {
+            processador.print();
+        }
         processador.selecionador = 0;
         processador.is_ciclo_exe_over=false;
     }
