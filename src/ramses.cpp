@@ -8,7 +8,7 @@ using std::map;
 
 class REG{
     public:
-    std::string r = "";
+    string r = "";
 
     string return_reg() {
         return r;
@@ -122,60 +122,60 @@ class ULA{
         result = std::stoi(a);
     }
 
-    void add(REG RA, string rdm_string) {
-        int a = std::stoi(RA.return_reg());
+    void add(string reg_value, string rdm_string) {
+        int a = std::stoi(reg_value);
         int b = std::stoi(rdm_string);
         //RA.receive(std::to_string(a+mem_val));
         result = a + b;
 
     }
 
-    void sub(REG &RA, string rdm_string) {
-        int a = std::stoi(RA.return_reg());
+    void sub(string reg_value, string rdm_string) {
+        int a = std::stoi(reg_value);
         int b = std::stoi(rdm_string);
         result = a - b;
         //RA.receive(std::to_string(a-mem_val));
     }
 
-    void andy(REG &RA, string rdm_string) {
-        int a = std::stoi(RA.return_reg());
+    void andy(string reg_value, string rdm_string) {
+        int a = std::stoi(reg_value);
         //RA.receive(std::to_string(a&mem_val));
         int b = std::stoi(rdm_string);
         result = a & b; 
     }
     
-    void ore(REG &RA, string rdm_string) {
-        int a = std::stoi(RA.return_reg());
+    void ore(string reg_value, string rdm_string) {
+        int a = std::stoi(reg_value);
         //RA.receive(std::to_string(a|mem_val));
         int b = std::stoi(rdm_string); 
         result = a | b;
     }
 
-    void note(REG &RA) {
-        int a = std::stoi(RA.return_reg());
+    void note(string reg_value) {
+        int a = std::stoi(reg_value);
         //RA.receive(std::to_string(~a));
         result = ~a;
     }
 
-    void sub(REG &RA, string rdm_string) {
-        int a = std::stoi(RA.return_reg());
+    void sub(string reg_value, string rdm_string) {
+        int a = std::stoi(reg_value);
         int b = std::stoi(rdm_string); 
         result = a - b;
     }
 
-    void sub(REG &RA, string rdm_string) {
-        int a = std::stoi(RA.return_reg());
+    void sub(string reg_value, string rdm_string) {
+        int a = std::stoi(reg_value);
         int b = std::stoi(rdm_string); 
         result = a - b;
     }
 
-    void neg(REG &RA) {
-        int a = std::stoi(RA.return_reg());
+    void neg(string reg_value) {
+        int a = std::stoi(reg_value);
         result = -a;
     }
 
-    void shr(REG &RA) {
-        int a = std::stoi(RA.return_reg());
+    void shr(string reg_value) {
+        int a = std::stoi(reg_value);
         result = a/2;
     }
 
@@ -188,7 +188,7 @@ class MUX{
 
     public:
 
-    void select(bool a) {
+    void select(int a) {
         sel = a;
     }
 
@@ -275,6 +275,7 @@ class Neander{
             write,
             cargaRDM,
             mux_rdm,
+            somador,
             
         };
         
@@ -285,7 +286,7 @@ class Neander{
 
     bool N = 0;
     bool Z = 0;
-    bool Z = 0;
+    bool C = 0;
     int clock{};
     states state;    
     
@@ -299,9 +300,10 @@ class Neander{
     int sel_rdm = 0;
     vector<string> armazenamento;
     bool segunda_volta = 0;
-    REG op1;
+    string op1;
     bool is_ciclo_busca_over = false;
     bool is_ciclo_exe_over = false;
+    bool indireto = 0;
     string seguir;
 
     void halt() {
@@ -587,12 +589,11 @@ class Neander{
                 else { // EH A SEGUNDA VOLTA
 
                     is_ciclo_busca_over = true;
+                    uni_cont.sc = uni_cont.sinais_controle::mux_pc;
                     break;
 
                 }
 
-
-                uni_cont.sc = uni_cont.sinais_controle::cargaRI;
 
                 break;
 
@@ -602,6 +603,10 @@ class Neander{
 
                 parte_operativa.operation_code.set_operation(parte_operativa.readmem.return_rdm());
 
+                if (parte_operativa.readmem.return_rdm()[2] == "1") {
+                    indireto = true;
+                }
+
                 if (parte_operativa.readmem.return_rdm_mod() == "0") { //nop
                     is_ciclo_busca_over = true;
                     is_ciclo_exe_over = true;
@@ -609,6 +614,16 @@ class Neander{
                     break;
                 }
                 if (parte_operativa.readmem.return_rdm_mod() == "6") { // not
+                    is_ciclo_busca_over = true;
+                    uni_cont.sc = uni_cont.sinais_controle::selUAL;
+                    break;
+                }
+                if (parte_operativa.readmem.return_rdm_mod() == "13") { // neg
+                    is_ciclo_busca_over = true;
+                    uni_cont.sc = uni_cont.sinais_controle::selUAL;
+                    break;
+                }
+                if (parte_operativa.readmem.return_rdm_mod() == "14") { // shr
                     is_ciclo_busca_over = true;
                     uni_cont.sc = uni_cont.sinais_controle::selUAL;
                     break;
@@ -634,29 +649,29 @@ class Neander{
             {
             case uni_cont.sinais_controle::mux_rem:
 
-                if (parte_operativa.operation_code.return_operation()[2] == "3" || parte_operativa.operation_code.return_operation()[2] == "2") {
+                if (parte_operativa.operation_code.return_operation()[2] == "2") { // eh constante, a vida eh bonita
+                    // acabamos de pegar a segunda palavra
+                    // pra a gente ir direto pra a ula, o modo de end eh direto
                     uni_cont.sc = uni_cont.sinais_controle::selUAL;
                 }
                 else { // precisa pegar a data
 
+                    parte_operativa.mux_pc.select(std::stoi(parte_operativa.operation_code.return_operation()[2]));
+                    uni_cont.sc = uni_cont.sinais_controle::cargaREM;
 
                 }
 
-                parte_operativa.multiplexador.select(0);
-                uni_cont.sc = uni_cont.sinais_controle::cargaREM;
                 break;
 
             case uni_cont.sinais_controle::cargaREM:
 
-                if (selecionador == 0) {
-                    parte_operativa.rem.str(std::stoi(parte_operativa.readmem.return_rdm()));
-                    uni_cont.sc = uni_cont.sinais_controle::read;
-                    
+                if (parte_operativa.operation_code.return_operation()[2] == "3") {
+                    parte_operativa.rem.str(std::stoi(parte_operativa.readmem.return_rdm()[0]) + std::stoi(parte_operativa.rx.return_reg()));
                 }
-                else {
-                    std::cout << "oxe nera pra entrar aqui nao...\n";
 
-                }
+                parte_operativa.rem.str(std::stoi(parte_operativa.readmem.return_rdm()[0])); // veio um endereco na rdm; vamos entrar nele
+                uni_cont.sc = uni_cont.sinais_controle::read;
+
                 break;
 
             
@@ -679,46 +694,55 @@ class Neander{
 
                 parte_operativa.readmem.str(armazenamento);
 
-                if (parte_operativa.operation_code.return_operation() == "0") { // indo pra a segunda volta
-                    // NOP
-                    clock+=1;
-                    is_ciclo_exe_over = 1;
-                    uni_cont.sc = uni_cont.sinais_controle::incrementaPC;
-                    
-                }
-                else if (parte_operativa.operation_code.return_operation() == "1"){
-                    //parte_operativa.readmem.str(parte_operativa.ac.return_reg());
-                    uni_cont.sc = uni_cont.sinais_controle::write;
-                    //clock+=1;
-                }
-                else if (parte_operativa.operation_code.return_operation() == "8"){ // jmp
-                    uni_cont.sc = uni_cont.sinais_controle::cargaPC;
-                    clock+=1;
-                }
-                else if (parte_operativa.operation_code.return_operation() == "9"){ // jn
-                    if (N) {
-                        uni_cont.sc = uni_cont.sinais_controle::cargaPC;
-                    }
-                    clock+=1;
-                }
-                else if (parte_operativa.operation_code.return_operation() == "10"){ // jz
-                    clock+=1;
-                    if(Z)
-                    {
-                        uni_cont.sc = uni_cont.sinais_controle::cargaPC;
-                        //parte_operativa.program_count.receive(std::stoi(parte_operativa.readmem.return_rdm()));
-                    }
-                }
-                else if (parte_operativa.operation_code.return_operation() == "15"){ // acho melhor a gente cuidar disso la no ciclo de busca
-                    is_ciclo_exe_over = 1;
+                if (indireto) {
+                    indireto = 0;
+                    uni_cont.sc = uni_cont.sinais_controle::mux_rem;
                 }
 
-                else { // eh 1-6 ! vamos para a ula
-                    //clock+=2;
+                else {
 
-                    uni_cont.sc = uni_cont.sinais_controle::selUAL;
-                    selecionador = 1;
+                    if (parte_operativa.operation_code.return_operation()[0] == "1"){ // eh str
+                        //parte_operativa.readmem.str(parte_operativa.ac.return_reg());
+                        uni_cont.sc = uni_cont.sinais_controle::write;
+                        //clock+=1;
+                    }
+                    else if (parte_operativa.operation_code.return_operation()[0] == "8"){ // jmp
+                        uni_cont.sc = uni_cont.sinais_controle::cargaPC;
+                        clock+=1;
+                    }
+                    else if (parte_operativa.operation_code.return_operation()[0] == "9"){ // jn
+                        if (N) {
+                            uni_cont.sc = uni_cont.sinais_controle::cargaPC;
+                        }
+                        clock+=1;
+                    }
+                    else if (parte_operativa.operation_code.return_operation()[0] == "10"){ // jz
+                        clock+=1;
+                        if(Z)
+                        {
+                            uni_cont.sc = uni_cont.sinais_controle::cargaPC;
+                            //parte_operativa.program_count.receive(std::stoi(parte_operativa.readmem.return_rdm()));
+                        }
+                    }
+                    else if (parte_operativa.operation_code.return_operation()[0] == "11"){ // jc
+                        clock+=1;
+                        if(C)
+                        {
+                            uni_cont.sc = uni_cont.sinais_controle::cargaPC;
+                        }
+                    }
+                    else if (parte_operativa.operation_code.return_operation()[0] == "12"){ // jsr
+                        clock+=1;
+                        uni_cont.sc = uni_cont.sinais_controle::write;
+                    }
+
+                    else { // eh 1-6 ! vamos para a ula
+
+                        uni_cont.sc = uni_cont.sinais_controle::selUAL;
+                    }
+
                 }
+
 
                 break;
 
@@ -726,6 +750,18 @@ class Neander{
 
                 // ter uma variavel de registrador;
                 // ai dependendo do opcode essa variavel muda
+
+                if (parte_operativa.operation_code.return_operation()[0] == "0") {// RA
+                    op1 = parte_operativa.ra.return_reg();
+                }
+                else if (parte_operativa.operation_code.return_operation()[0] == "1") {
+                    op1 = parte_operativa.rb.return_reg();
+                }
+                else {
+                    op1 = parte_operativa.rx.return_reg();
+                }
+
+                uni_cont.sc = uni_cont.sinais_controle::selUAL;
 
 
                 break;
@@ -737,13 +773,13 @@ class Neander{
                 clock+=1;
                 // eu nao quero return operation, eu quero
 
-                if (parte_operativa.operation_code.return_operation()[0] == "0") {// RA
-                    op1.receive(parte_operativa.ra.return_reg());
+                if (parte_operativa.operation_code.return_operation()[1] == "0") {// RA
+                    uni_cont.sc = uni_cont.sinais_controle::cargaRA;
                 }
-                else if (parte_operativa.operation_code.return_operation()[0] == "1") {
+                else if (parte_operativa.operation_code.return_operation()[1] == "1") {
                     uni_cont.sc = uni_cont.sinais_controle::cargaRB;
                 }
-                else {
+                else { // r2
                     uni_cont.sc = uni_cont.sinais_controle::cargaRX;
                 }
 
@@ -757,25 +793,30 @@ class Neander{
 
                 if (parte_operativa.operation_code.return_operation()[0] == "1") { // str
                     // do nothing. this is just a pathway
-                    uni_cont.sc = uni_cont.sinais_controle::carga;
                 }
                 else if (parte_operativa.operation_code.return_operation()[0] == "2") { //ldr
-                    parte_operativa.unidade_arit.load(armazenamento);
+                    parte_operativa.unidade_arit.load(armazenamento[0]);
                 }
                 else if (parte_operativa.operation_code.return_operation()[0] == "3"){ //add
-                    parte_operativa.unidade_arit.add(parte_operativa.ac, parte_operativa.readmem.return_rdm());
+                    parte_operativa.unidade_arit.add(op1, parte_operativa.readmem.return_rdm()[0]);
                 }
                 else if (parte_operativa.operation_code.return_operation()[0] == "4"){ // or
-                    parte_operativa.unidade_arit.ore(parte_operativa.ac, parte_operativa.readmem.return_rdm());
+                    parte_operativa.unidade_arit.ore(op1, parte_operativa.readmem.return_rdm()[0]);
                 }
                 else if (parte_operativa.operation_code.return_operation()[0] == "5"){ // and
-                    parte_operativa.unidade_arit.andy(parte_operativa.ac, parte_operativa.readmem.return_rdm());
+                    parte_operativa.unidade_arit.andy(op1, parte_operativa.readmem.return_rdm()[0]);
                 }
                 else if (parte_operativa.operation_code.return_operation()[0] == "6"){ // not
-                    parte_operativa.unidade_arit.note(parte_operativa.ac);
+                    parte_operativa.unidade_arit.note(op1);
                 }
-                else if (parte_operativa.operation_code.return_operation()[0] == "7"){ // not
-                    parte_operativa.unidade_arit.note(parte_operativa.ac);
+                else if (parte_operativa.operation_code.return_operation()[0] == "7"){ // sub
+                    parte_operativa.unidade_arit.note(op1);
+                }
+                else if (parte_operativa.operation_code.return_operation()[0] == "13"){ // neg
+                    parte_operativa.unidade_arit.neg(op1);
+                }
+                else if (parte_operativa.operation_code.return_operation()[0] == "14"){ // shr
+                    parte_operativa.unidade_arit.shr(op1);
                 }
 
                 if (parte_operativa.unidade_arit.result <= 0) {
@@ -786,7 +827,7 @@ class Neander{
                     if (parte_operativa.operation_code.return_operation()[0] == "0") {// RA
                         uni_cont.sc = uni_cont.sinais_controle::cargaRA;
                     }
-                    else if (parte_operativa.operation_code.return_operation()[0] == "0") {
+                    else if (parte_operativa.operation_code.return_operation()[0] == "1") {
                         uni_cont.sc = uni_cont.sinais_controle::cargaRB;
                     }
                     else {
@@ -826,6 +867,42 @@ class Neander{
 
                 break;
             
+            case uni_cont.sinais_controle::cargaRB:
+                //parte_operativa.rem.str();
+
+                if (parte_operativa.operation_code.return_operation()[0] == "1") { // str
+                    // do nothing. this is just a pathway
+                    uni_cont.sc = uni_cont.sinais_controle::cargaRDM;
+
+                }
+
+                else {
+                    parte_operativa.ra.receive(std::to_string(parte_operativa.unidade_arit.result)); // isso eh para load, add, sub, and, or, not
+                    uni_cont.sc = uni_cont.sinais_controle::incrementaPC;
+                    is_ciclo_exe_over = 1;
+
+                }
+
+                break;
+
+            case uni_cont.sinais_controle::cargaRX:
+                //parte_operativa.rem.str();
+
+                if (parte_operativa.operation_code.return_operation()[0] == "1") { // str
+                    // do nothing. this is just a pathway
+                    uni_cont.sc = uni_cont.sinais_controle::cargaRDM;
+
+                }
+
+                else {
+                    parte_operativa.ra.receive(std::to_string(parte_operativa.unidade_arit.result)); // isso eh para load, add, sub, and, or, not
+                    uni_cont.sc = uni_cont.sinais_controle::incrementaPC;
+                    is_ciclo_exe_over = 1;
+
+                }
+
+                break;
+
             case uni_cont.sinais_controle::cargaNZ:
 
                 if (parte_operativa.unidade_arit.result == 0) {
@@ -834,13 +911,27 @@ class Neander{
                 else {
                     N = 1;
                 }
+                
 
-                uni_cont.sc = uni_cont.sinais_controle::cargaAC;
+                if (parte_operativa.operation_code.return_operation()[0] == "0") {// RA
+                    uni_cont.sc = uni_cont.sinais_controle::cargaRA;
+                }
+                else if (parte_operativa.operation_code.return_operation()[0] == "1") {
+                    uni_cont.sc = uni_cont.sinais_controle::cargaRB;
+                }
+                else {
+                    uni_cont.sc = uni_cont.sinais_controle::cargaRX;
+                }
+                
                 break;
             
             case uni_cont.sinais_controle::cargaPC:
 
-                parte_operativa.program_count.receive(std::stoi(parte_operativa.readmem.return_rdm()));
+                if (parte_operativa.operation_code.return_operation()[1] == "12") {
+                    parte_operativa.program_count.receive(std::stoi(parte_operativa.readmem.return_rdm()[0]) + 1);
+                }
+
+                parte_operativa.program_count.receive(std::stoi(parte_operativa.readmem.return_rdm()[0]));
                 is_ciclo_exe_over = 1;
                 uni_cont.sc = uni_cont.sinais_controle::incrementaPC;
             
@@ -849,7 +940,24 @@ class Neander{
             case uni_cont.sinais_controle::write:
 
                 clock+=3;
-                parte_operativa.memoria.write(parte_operativa.ac.return_reg(), std::stoi(parte_operativa.readmem.return_rdm()));
+
+                if (parte_operativa.operation_code.return_operation()[0] == "12") {
+                    parte_operativa.memoria.write(std::to_string(parte_operativa.program_count.return_p()), std::stoi(parte_operativa.readmem.return_rdm()[0]));
+                    uni_cont.sc = uni_cont.sinais_controle::cargaPC;
+                    break;
+                }
+
+                if (parte_operativa.operation_code.return_operation()[1] == "0") {
+                    parte_operativa.memoria.write(parte_operativa.ra.return_reg(), std::stoi(parte_operativa.readmem.return_rdm()[0]));
+                }
+                else if (parte_operativa.operation_code.return_operation()[1] == "1") {
+                    parte_operativa.memoria.write(parte_operativa.rb.return_reg(), std::stoi(parte_operativa.readmem.return_rdm()[0]));
+                }
+                else {
+                    parte_operativa.memoria.write(parte_operativa.rx.return_reg(), std::stoi(parte_operativa.readmem.return_rdm()[0]));
+                }
+
+
                 uni_cont.sc = uni_cont.sinais_controle::incrementaPC;
                 is_ciclo_exe_over = 1;
                 break;
@@ -874,7 +982,7 @@ class Neander{
     void print_memory(){
         int count=0;
         for(auto e: this->parte_operativa.memoria.M){
-            std::cout << count << ": " << e << "\n";
+            std::cout << count << ": " << e[0] << "\t"<< e[1] << "\t" << e[2] << "\n";
         }
     }
 
@@ -971,9 +1079,9 @@ int main(int argc, char* argv[]){
             std::cout << "Operação invalida na linha: " << cont << "\n";
             return 1;
         }
-        processador.parte_operativa.memoria.M[cont] = codigo;
+        processador.parte_operativa.memoria.M[cont][0] = codigo;
         cont++;
-        if(codigo == "0" or codigo == "6" or codigo == "15"){
+        if(codigo == "0" or codigo == "15"){ // codigo == "6" isso aqui eh fake
             continue;
         }
         else{
@@ -1025,7 +1133,7 @@ int main(int argc, char* argv[]){
         if (not processador.program_over()) {
             processador.print();
         }
-        processador.selecionador = 0;
+        processador.indireto = 0;
         processador.is_ciclo_exe_over=false;
     }
 
