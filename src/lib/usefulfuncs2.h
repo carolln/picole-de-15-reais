@@ -14,7 +14,13 @@ string decode(string str, map<string, string> &dicionario);
 
 void fill_dictionary(map<string, string> &mapa);
 
+bool is_index_mode(std::string input);
+
 vector<std::string> tokenize (string line);
+
+std::string strtolower(std::string orig);
+
+bool is_number(string input);
 
 std::vector<std::string> split(std::string input, std::string delimiters = " \t");
 #endif

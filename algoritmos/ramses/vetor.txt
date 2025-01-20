@@ -1,0 +1,32 @@
+:data
+
+tam   7F
+v     80..89 ;; vetor
+maior 8A     ;; começa com 0
+
+
+:code
+
+inicio:
+    ldr RA, 80+X
+    sub RA, maior
+    jn troca
+
+teste:
+    str RX, 90
+    ldr RB, 90
+    sub RB, 7F
+    jn inc
+    jmp fim
+
+inc:
+    inc RX
+    jmp inicio
+
+troca:
+    ldr RA, 80+X
+    str RA, 8A
+    jmp teste
+
+fim:
+   hlt

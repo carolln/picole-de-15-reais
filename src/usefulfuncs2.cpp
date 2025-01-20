@@ -9,6 +9,28 @@ string decode(string str, map<string, string> &dicionario){
         return "NULLSTRING";
     }
 }
+
+///checks if the string is a number
+bool is_number(string input){
+    try{
+        std::stoi(input);
+    }
+    catch(std::invalid_argument){
+        return false;
+    }
+    catch(std::out_of_range){
+        return false;
+    }
+    return true;
+}
+///converts the entire string to lowercase
+std::string strtolower(std::string orig){
+    int n = orig.size();
+    for(int i=0; i<n; ++i){
+        orig[i] = tolower(orig[i]);
+    }
+    return orig;
+}
 void fill_dictionary(map<string, string> &mapa){
     mapa.insert({"nop", "0"});
     mapa.insert({"sta", "1"});

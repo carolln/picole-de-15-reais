@@ -2,7 +2,7 @@
 using std::vector;
 using std::string;
 using std::map;
-
+#define MEMORIA processador.parte_operativa.memoria.M
 
 // refazer a funcao que separa w coloca na memoria
 
@@ -1066,11 +1066,15 @@ int main(int argc, char* argv[]){
 
     //preparar a memoria
     int cont=0;
+    int parser_cont=1;
     while(std::getline(assembly, line)){
         if(line.empty()){
+            parser_cont++;
             continue;
         }
-        else if(line[0]=='#'){
+        else if(line[0]=='$'){
+            //comentario
+            parser_cont++;
             continue;
         }
         vector<string> inputs = split(line, " ");
@@ -1079,36 +1083,68 @@ int main(int argc, char* argv[]){
             std::cout << "Operação invalida na linha: " << cont << "\n";
             return 1;
         }
-        processador.parte_operativa.memoria.M[cont][0] = codigo;
-        cont++;
-        if(codigo == "0" or codigo == "15"){ // codigo == "6" isso aqui eh fake
+        /*
+        mapa.insert({"nop", "0"});
+        mapa.insert({"sta", "1"});
+        mapa.insert({"lda", "2"});
+        mapa.insert({"add","3"});
+        mapa.insert({"or", "4"});
+        mapa.insert({"and","5"});
+        mapa.insert({"not", "6"});
+        mapa.insert({"sub", "7"});
+        mapa.insert({"jmp","8"});
+        mapa.insert({"jn","9"});
+        mapa.insert({"jz", "10"});
+        mapa.insert({"jc", "11"});
+        mapa.insert({"jsr", "12"});
+        mapa.insert({"neg", "13"});
+        mapa.insert({"shr", "14"});
+        mapa.insert({"hlt", "15"});
+        */
+        processador.parte_operativa.memoria.M[cont][0] = inputs[0];
+        if(inputs[0]=="0" or inputs[0]=="15"){
+            cont++;
+            parser_cont++;
             continue;
         }
-        else{
-            if(inputs.size()!=2){
-                std::cout << "Quantidade errada de argumentos na linha: " << cont << "\n";
+        if(inputs[1].empty()){
+            std::cout << "Operação invalida na linha: " << parser_cont << "\n";
+            return 1;
+        }
+        //se as funções chamarem o endereço independentemente do registrador
+        if(inputs[0] == "8" or inputs[0] == "9" or inputs[0] == "10" or inputs[0] == "11" or inputs[0] == "12"){
+            if(inputs[1][0]=='#'){
+                MEMORIA[count][2]=inputs[1].substr(1);
             }
             else{
-                try{
-                    std::stoi(inputs[1]);
-                }
-                catch(std::invalid_argument){
-                    std::cout << "Espera-se um número após a operação na linha: " << cont << "\n";
-                    return 1;
-                }
-                catch(std::out_of_range){
-                    std::cout << "Numero invalido na linha: " << cont << "\n";
-                    return 1;
-                }
-                int temp = std::stoi(inputs[1]);
-                if(temp > 255 or temp < 0){
-                    std::cout << "Numero inválido na linha: " << cont << "\n";
-                    return 1;
-                }
-                processador.parte_operativa.memoria.M[cont] = inputs[1];
-                cont++;
+                std::cout << "Operação inválida na linha: " << parser_cont << "\n";
             }
+            parser_cont;
+            continue;
         }
+        //se as funções chamarem o registrador sem o endereço
+        else if(inputs[0] == "6" or inputs[0] == "13" or inputs[0] == "14"){
+            if(strtolower(inputs[1])=="a" or strtolower(inputs[1])=="b" or strtolower(inputs[1])=="x"){
+                processador.parte_operativa.memoria.M[cont][1] = inputs[1];
+            }
+            else{
+                std::cout << "Operação inválida na linha: " << parser_cont << "\n";
+                return 1;
+            }
+            cont++;
+            parser_cont++;
+            continue;
+        }
+        else if(strtolower(inputs[1])=="a" or strtolower(inputs[1])=="b" or strtolower(inputs[1])=="x"){
+            processador.parte_operativa.memoria.M[cont][1] = inputs[1];
+        }
+        else if(is_number(inputs[1])){
+            processador.parte_operativa.memoria.M[cont][1] = inputs[1];
+        }
+        else{
+            std::cout << "Argumento invalido na linha: " << parser_cont << "\n";
+        }
+
     }
     //use esse espaço para preencher a memoria com as variáveis nas posições 128-255
     processador.parte_operativa.memoria.M[128][0]="10";
