@@ -1,0 +1,3 @@
+ldr A 128
+ldr B 129
+ldr X 130

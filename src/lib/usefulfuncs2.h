@@ -22,5 +22,7 @@ std::string strtolower(std::string orig);
 
 bool is_number(string input);
 
+bool is_reg(string input);
+
 std::vector<std::string> split(std::string input, std::string delimiters = " \t");
 #endif

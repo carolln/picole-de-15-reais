@@ -31,7 +31,7 @@ class MEM{
     }
 
     void write(string s, int idx) {
-        M[idx] = s;
+        //M[idx] = s;
     }
     
     
@@ -157,17 +157,17 @@ class ULA{
         result = ~a;
     }
 
-    void sub(string reg_value, string rdm_string) {
-        int a = std::stoi(reg_value);
-        int b = std::stoi(rdm_string); 
-        result = a - b;
-    }
+    // void sub(string reg_value, string rdm_string) {
+    //     int a = std::stoi(reg_value);
+    //     int b = std::stoi(rdm_string); 
+    //     result = a - b;
+    // }
 
-    void sub(string reg_value, string rdm_string) {
-        int a = std::stoi(reg_value);
-        int b = std::stoi(rdm_string); 
-        result = a - b;
-    }
+    // void sub(string reg_value, string rdm_string) {
+    //     int a = std::stoi(reg_value);
+    //     int b = std::stoi(rdm_string); 
+    //     result = a - b;
+    // }
 
     void neg(string reg_value) {
         int a = std::stoi(reg_value);
@@ -348,122 +348,122 @@ class Neander{
         //std::cout << "Memória de dados (Registrador de memória): \n"; // << 
         std::cout << "Operação executada na ULA: ";
 
-        switch (std::stoi(parte_operativa.operation_code.return_operation()))
-        {
-        case 1:
-            std::cout << "str\n";
-            break;
+        // switch (std::stoi(parte_operativa.operation_code.return_operation()))
+        // {
+        // case 1:
+        //     std::cout << "str\n";
+        //     break;
         
-        case 2:
-            std::cout << "ldr\n";
-            break;
+        // case 2:
+        //     std::cout << "ldr\n";
+        //     break;
         
-        case 3:
-            std::cout << "add\n";
-            break;
+        // case 3:
+        //     std::cout << "add\n";
+        //     break;
         
-        case 4:
-            std::cout << "or\n";
-            break;
+        // case 4:
+        //     std::cout << "or\n";
+        //     break;
         
-        case 5:
-            std::cout << "and\n";
-            break;
+        // case 5:
+        //     std::cout << "and\n";
+        //     break;
         
-        case 6:
-            std::cout << "not\n";
-            break;
+        // case 6:
+        //     std::cout << "not\n";
+        //     break;
         
-        case 7:
-            std::cout << "sub\n";
-            break;
+        // case 7:
+        //     std::cout << "sub\n";
+        //     break;
         
-        case 13:
-            std::cout << "neg\n";
-            break;
+        // case 13:
+        //     std::cout << "neg\n";
+        //     break;
         
-        case 14:
-            std::cout << "shr\n";
-            break;
+        // case 14:
+        //     std::cout << "shr\n";
+        //     break;
         
-        default:
-        std::cout << "-\n";
-            break;
-        }
+        // default:
+        // std::cout << "-\n";
+        //     break;
+        // }
 
 
-        std::cout << "Opcode: ";
+        // std::cout << "Opcode: ";
         
-        switch (std::stoi(parte_operativa.operation_code.return_operation()))
-        {
-        case 0:
-            std::cout << "nop\n";
-            break;
+        // switch (std::stoi(parte_operativa.operation_code.return_operation()))
+        // {
+        // case 0:
+        //     std::cout << "nop\n";
+        //     break;
         
-        case 1:
-            std::cout << "str\n";
-            break;
+        // case 1:
+        //     std::cout << "str\n";
+        //     break;
         
-        case 2:
-            std::cout << "ldr\n";
-            break;
+        // case 2:
+        //     std::cout << "ldr\n";
+        //     break;
         
-        case 3:
-            std::cout << "add\n";
-            break;
+        // case 3:
+        //     std::cout << "add\n";
+        //     break;
         
-        case 4:
-            std::cout << "or\n";
-            break;
+        // case 4:
+        //     std::cout << "or\n";
+        //     break;
         
-        case 5:
-            std::cout << "and\n";
-            break;
+        // case 5:
+        //     std::cout << "and\n";
+        //     break;
         
-        case 6:
-            std::cout << "not\n";
-            break;
+        // case 6:
+        //     std::cout << "not\n";
+        //     break;
         
-        case 7:
-            std::cout << "sub\n";
-            break;
+        // case 7:
+        //     std::cout << "sub\n";
+        //     break;
         
-        case 8:
-            std::cout << "jmp\n";
-            break;
+        // case 8:
+        //     std::cout << "jmp\n";
+        //     break;
         
-        case 9:
-            std::cout << "jn\n";
-            break;
+        // case 9:
+        //     std::cout << "jn\n";
+        //     break;
         
-        case 10:
-            std::cout << "jz\n";
-            break;
+        // case 10:
+        //     std::cout << "jz\n";
+        //     break;
 
-        case 11:
-            std::cout << "jc\n";
-            break;
+        // case 11:
+        //     std::cout << "jc\n";
+        //     break;
 
-        case 12:
-            std::cout << "jsr\n";
-            break;
+        // case 12:
+        //     std::cout << "jsr\n";
+        //     break;
         
-        case 13:
-            std::cout << "neg\n";
-            break;
+        // case 13:
+        //     std::cout << "neg\n";
+        //     break;
         
-        case 14:
-            std::cout << "shr\n";
-            break;
+        // case 14:
+        //     std::cout << "shr\n";
+        //     break;
         
-        case 15:
-            std::cout << "hlt\n";
-            break;
+        // case 15:
+        //     std::cout << "hlt\n";
+        //     break;
         
-        default:
-        std::cout << "-\n";
-            break;
-        }
+        // default:
+        // std::cout << "-\n";
+        //     break;
+        // }
 
         std::cout << "\nPress any letter + <enter> to go on\n\n\n";
         
@@ -1113,13 +1113,29 @@ int main(int argc, char* argv[]){
         }
         //se as funções chamarem o endereço independentemente do registrador
         if(inputs[0] == "8" or inputs[0] == "9" or inputs[0] == "10" or inputs[0] == "11" or inputs[0] == "12"){
+            size_t index = inputs[1].find(',');
             if(inputs[1][0]=='#'){
-                MEMORIA[count][2]=inputs[1].substr(1);
+                MEMORIA[cont][2] = "2";
+                cont++;
+                MEMORIA[cont][0]=inputs[1].substr(1);
+            }
+            else if(index != string::npos){
+                if(is_number(inputs[1].substr(0, inputs[1].size()-index))){
+                    cont++;
+                    MEMORIA[cont][0] = inputs[1].substr(0, index);
+                    string substring = inputs[1].substr(index+1, inputs[1].size()-index);
+                    if(strtolower(substring) == "x"){
+                        MEMORIA[cont-1][2] = "3";
+                    }
+                    else if(strtolower(substring)=="i"){
+                        MEMORIA[cont-1][2] = "1";
+                    }
+                }
             }
             else{
                 std::cout << "Operação inválida na linha: " << parser_cont << "\n";
             }
-            parser_cont;
+            parser_cont++;
             continue;
         }
         //se as funções chamarem o registrador sem o endereço

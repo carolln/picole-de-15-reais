@@ -33,8 +33,8 @@ std::string strtolower(std::string orig){
 }
 void fill_dictionary(map<string, string> &mapa){
     mapa.insert({"nop", "0"});
-    mapa.insert({"sta", "1"});
-    mapa.insert({"lda", "2"});
+    mapa.insert({"str", "1"});
+    mapa.insert({"ldr", "2"});
     mapa.insert({"add","3"});
     mapa.insert({"or", "4"});
     mapa.insert({"and","5"});
@@ -63,6 +63,13 @@ vector<string> tokenize (string line) {
 
     return a;
 
+}
+
+bool is_reg(string input){
+    if(strtolower(input)=="a" or strtolower(input)=="b" or strtolower(input)=="x"){
+        return true;
+    }
+    return false;
 }
 
 ///@brief Gets a string input (most commonly a line of input) and splits it into a vector of strings
