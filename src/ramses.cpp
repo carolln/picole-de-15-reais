@@ -25,7 +25,11 @@ class MEM{
     
     vector<std::string> M[256];
 
-
+    MEM(){
+        for(int i=0;i<256;i++){
+            M[i].reserve(3);
+        }
+    }
     vector<std::string> read(int idx) {
         return M[idx]; // retorna o primeiro valor
     }
@@ -230,7 +234,7 @@ class SOMADOR {
 
 
 
-class Neander{
+class Ramses{
     public:
     enum states {
         busca,
@@ -239,7 +243,7 @@ class Neander{
     class PO{
         public:
         ULA unidade_arit;
-        MEM memoria;
+        MEM memoria{};
         RDM readmem;
         REM rem;
         PC program_count;
@@ -283,7 +287,6 @@ class Neander{
         
         
     };
-
     bool N = 0;
     bool Z = 0;
     bool C = 0;
@@ -981,8 +984,8 @@ class Neander{
 
     void print_memory(){
         int count=0;
-        for(auto e: this->parte_operativa.memoria.M){
-            std::cout << count << ": " << e[0] << "\t"<< e[1] << "\t" << e[2] << "\n";
+        for(int i=0;i<256;i++){
+            std::cerr << parte_operativa.memoria.M[i][0] << ", " << parte_operativa.memoria.M[i][1] << ", " << parte_operativa.memoria.M[i][2] << "\n";
         }
     }
 
@@ -1042,6 +1045,11 @@ class Neander{
 struct CLK{ int c=0; };
 
 
+void print_err(int parser_cont){
+    
+    std::cout << "Argumento inválido na linha: " << parser_cont << "\n";
+
+}
 
 int main(int argc, char* argv[]){
 
@@ -1057,7 +1065,7 @@ int main(int argc, char* argv[]){
         return 1;
     }
     string line;
-    Neander processador;
+    Ramses processador;
     map<string, string> dicionario;
     fill_dictionary(dicionario);
 
@@ -1080,7 +1088,7 @@ int main(int argc, char* argv[]){
         vector<string> inputs = split(line, " ");
         string codigo = decode(inputs[0], dicionario);
         if(codigo=="NULLSTRING"){
-            std::cout << "Operação invalida na linha: " << cont << "\n";
+            print_err(parser_cont);
             return 1;
         }
         /*
@@ -1101,18 +1109,18 @@ int main(int argc, char* argv[]){
         mapa.insert({"shr", "14"});
         mapa.insert({"hlt", "15"});
         */
-        processador.parte_operativa.memoria.M[cont][0] = inputs[0];
-        if(inputs[0]=="0" or inputs[0]=="15"){
+        processador.parte_operativa.memoria.M[cont][0] = codigo;
+        if(codigo=="0" or codigo=="15"){
             cont++;
             parser_cont++;
             continue;
         }
         if(inputs[1].empty()){
-            std::cout << "Operação invalida na linha: " << parser_cont << "\n";
+            print_err(parser_cont);
             return 1;
         }
         //se as funções chamarem o endereço independentemente do registrador
-        if(inputs[0] == "8" or inputs[0] == "9" or inputs[0] == "10" or inputs[0] == "11" or inputs[0] == "12"){
+        if(codigo == "8" or codigo == "9" or codigo == "10" or codigo == "11" or codigo == "12"){
             size_t index = inputs[1].find(',');
             if(inputs[1][0]=='#'){
                 MEMORIA[cont][2] = "2";
@@ -1132,19 +1140,26 @@ int main(int argc, char* argv[]){
                     }
                 }
             }
+            else if(is_number(inputs[1])){
+                cont++;
+                MEMORIA[cont-1][2] = "0";
+                MEMORIA[cont][0] = inputs[1];
+                cont++;
+            }
             else{
-                std::cout << "Operação inválida na linha: " << parser_cont << "\n";
+                print_err(parser_cont);
+                return 1;
             }
             parser_cont++;
             continue;
         }
         //se as funções chamarem o registrador sem o endereço
-        else if(inputs[0] == "6" or inputs[0] == "13" or inputs[0] == "14"){
+        else if(codigo == "6" or codigo == "13" or codigo == "14"){
             if(strtolower(inputs[1])=="a" or strtolower(inputs[1])=="b" or strtolower(inputs[1])=="x"){
                 processador.parte_operativa.memoria.M[cont][1] = inputs[1];
             }
             else{
-                std::cout << "Operação inválida na linha: " << parser_cont << "\n";
+                print_err(parser_cont);
                 return 1;
             }
             cont++;
@@ -1158,16 +1173,61 @@ int main(int argc, char* argv[]){
             processador.parte_operativa.memoria.M[cont][1] = inputs[1];
         }
         else{
-            std::cout << "Argumento invalido na linha: " << parser_cont << "\n";
+            print_err(parser_cont);
+            return 1;
         }
-
+        //a instrução usa o registrador e o endereço
+        if(inputs[2].empty()){
+            print_err(parser_cont);
+            return 1;
+        }
+        else{
+            size_t index = inputs[2].find(',');
+            if(inputs[2][0]=='#'){
+                MEMORIA[cont][2] = "2";
+                cont++;
+                MEMORIA[cont][0]=inputs[1].substr(1);
+            }
+            else if(index != string::npos){
+                if(is_number(inputs[2].substr(0, index))){
+                    cont++;
+                    string substring1=inputs[2].substr(0, index);
+                    MEMORIA[cont][0] = substring1;
+                    string substring = inputs[2].substr(index+1, inputs[2].size()-index);
+                    if(strtolower(substring) == "x"){
+                        MEMORIA[cont-1][2] = "3";
+                    }
+                    else if(strtolower(substring)=="i"){
+                        MEMORIA[cont-1][2] = "1";
+                    }
+                }
+                cont++;
+                parser_cont++;
+                continue;
+            }
+            //endereçamento direto
+            else{
+                if(is_number(inputs[2])){
+                    cont++;
+                    MEMORIA[cont-1][2] = "0";
+                    MEMORIA[cont][0] = inputs[2];
+                    cont++;
+                    parser_cont++;
+                }
+                else{
+                    print_err(parser_cont);
+                    return 1;
+                }
+            }
+        }
     }
+    processador.print_memory();
     //use esse espaço para preencher a memoria com as variáveis nas posições 128-255
     processador.parte_operativa.memoria.M[128][0]="10";
     processador.parte_operativa.memoria.M[129][0]="35";
     processador.parte_operativa.memoria.M[131][0]="5";
 
-    std::cout << "BEM VINDO À SIMULAÇÃO DO PROCESSADOR NEANDER\n\naperte qualquer letra + <enter> para começar a simulação\n\n\n";
+    std::cout << "BEM VINDO À SIMULAÇÃO DO PROCESSADOR RAMSES\n\naperte qualquer letra + <enter> para começar a simulação\n\n\n";
     
     while(not processador.program_over()){
         while(not processador.busca_over()){

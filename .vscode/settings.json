@@ -47,6 +47,7 @@
         "typeinfo": "cpp",
         "sstream": "cpp",
         "cstdarg": "cpp",
-        "map": "cpp"
+        "map": "cpp",
+        "cstring": "cpp"
     }
 }
