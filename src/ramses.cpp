@@ -28,14 +28,25 @@ class MEM{
     MEM(){
         for(int i=0;i<256;i++){
             M[i].reserve(3);
+            M[i].assign({"","",""});
         }
     }
     vector<std::string> read(int idx) {
         return M[idx]; // retorna o primeiro valor
     }
 
-    void write(string s, int idx) {
-        //M[idx] = s;
+    void read(vector<std::string>& s, int idx) {
+        M[idx] = s;
+    }
+
+    void read2(vector<std::string>& s, int idx) {
+        M[idx][0] = s[0];
+        M[idx][1] = s[1];
+        M[idx][2] = s[2];
+    }
+
+    void write(string s, int idx, int pos = 0) {
+        M[idx][pos] = s;
     }
     
     
@@ -346,8 +357,8 @@ class Ramses{
         std::cout << "Flag de controle Z: " << Z << "\n";
         std::cout << "Flag de controle C: " << Z << "\n";
         std::cout << "Registrador A: " << parte_operativa.ra.return_reg() << "\n";
-        std::cout << "Registrador B: " << parte_operativa.ra.return_reg() << "\n";
-        std::cout << "Registrador X: " << parte_operativa.ra.return_reg() << "\n";
+        std::cout << "Registrador B: " << parte_operativa.rb.return_reg() << "\n";
+        std::cout << "Registrador X: " << parte_operativa.rx.return_reg() << "\n";
         //std::cout << "Memória de dados (Registrador de memória): \n"; // << 
         std::cout << "Operação executada na ULA: ";
 
@@ -564,16 +575,17 @@ class Ramses{
                 break;
             
             case uni_cont.sinais_controle::read:
-
+                
                 clock+=3;
 
-                armazenamento = parte_operativa.memoria.read(parte_operativa.rem.return_rem());
+                armazenamento = parte_operativa.memoria.M[parte_operativa.rem.return_rem()];
 
                 uni_cont.sc = uni_cont.sinais_controle::cargaRDM;
+                
                 break;
             
             case uni_cont.sinais_controle::cargaRDM:
-
+                
                 // depende do modo de enderecamento
 
                 parte_operativa.readmem.str(armazenamento);
@@ -592,7 +604,12 @@ class Ramses{
                 else { // EH A SEGUNDA VOLTA
 
                     is_ciclo_busca_over = true;
-                    uni_cont.sc = uni_cont.sinais_controle::mux_pc;
+                    uni_cont.sc = uni_cont.sinais_controle::mux_rem;
+
+                    if (parte_operativa.operation_code.return_operation()[0] == "8") { // eh jump
+                        clock+=1;
+                        uni_cont.sc = uni_cont.sinais_controle::cargaPC;
+                    }
                     break;
 
                 }
@@ -610,23 +627,23 @@ class Ramses{
                     indireto = true;
                 }
 
-                if (parte_operativa.readmem.return_rdm_mod() == "0") { //nop
+                if (parte_operativa.readmem.return_rdm()[0] == "0") { //nop
                     is_ciclo_busca_over = true;
                     is_ciclo_exe_over = true;
                     uni_cont.sc = uni_cont.sinais_controle::incrementaPC;
                     break;
                 }
-                if (parte_operativa.readmem.return_rdm_mod() == "6") { // not
+                if (parte_operativa.readmem.return_rdm()[0] == "6") { // not
                     is_ciclo_busca_over = true;
                     uni_cont.sc = uni_cont.sinais_controle::selUAL;
                     break;
                 }
-                if (parte_operativa.readmem.return_rdm_mod() == "13") { // neg
+                if (parte_operativa.readmem.return_rdm()[0] == "13") { // neg
                     is_ciclo_busca_over = true;
                     uni_cont.sc = uni_cont.sinais_controle::selUAL;
                     break;
                 }
-                if (parte_operativa.readmem.return_rdm_mod() == "14") { // shr
+                if (parte_operativa.readmem.return_rdm()[0] == "14") { // shr
                     is_ciclo_busca_over = true;
                     uni_cont.sc = uni_cont.sinais_controle::selUAL;
                     break;
@@ -672,7 +689,10 @@ class Ramses{
                     parte_operativa.rem.str(std::stoi(parte_operativa.readmem.return_rdm()[0]) + std::stoi(parte_operativa.rx.return_reg()));
                 }
 
-                parte_operativa.rem.str(std::stoi(parte_operativa.readmem.return_rdm()[0])); // veio um endereco na rdm; vamos entrar nele
+                else{
+                    parte_operativa.rem.str(std::stoi(parte_operativa.readmem.return_rdm()[0])); // veio um endereco na rdm; vamos entrar nele
+                }
+
                 uni_cont.sc = uni_cont.sinais_controle::read;
 
                 break;
@@ -776,13 +796,13 @@ class Ramses{
                 clock+=1;
                 // eu nao quero return operation, eu quero
 
-                if (parte_operativa.operation_code.return_operation()[1] == "0") {// RA
+                if (parte_operativa.operation_code.return_operation()[1] == "A" || parte_operativa.operation_code.return_operation()[1] == "a") {// RA
                     uni_cont.sc = uni_cont.sinais_controle::cargaRA;
                 }
-                else if (parte_operativa.operation_code.return_operation()[1] == "1") {
+                else if (parte_operativa.operation_code.return_operation()[1] == "B" || parte_operativa.operation_code.return_operation()[1] == "b") {
                     uni_cont.sc = uni_cont.sinais_controle::cargaRB;
                 }
-                else { // r2
+                else { // X
                     uni_cont.sc = uni_cont.sinais_controle::cargaRX;
                 }
 
@@ -827,7 +847,7 @@ class Ramses{
                 }
                 else {
 
-                    if (parte_operativa.operation_code.return_operation()[0] == "0") {// RA
+                    /*if (parte_operativa.operation_code.return_operation()[0] == "0") {// RA
                         uni_cont.sc = uni_cont.sinais_controle::cargaRA;
                     }
                     else if (parte_operativa.operation_code.return_operation()[0] == "1") {
@@ -835,7 +855,7 @@ class Ramses{
                     }
                     else {
                         uni_cont.sc = uni_cont.sinais_controle::cargaRX;
-                    }
+                    }*/
                 }
 
 
@@ -880,7 +900,7 @@ class Ramses{
                 }
 
                 else {
-                    parte_operativa.ra.receive(std::to_string(parte_operativa.unidade_arit.result)); // isso eh para load, add, sub, and, or, not
+                    parte_operativa.rb.receive(std::to_string(parte_operativa.unidade_arit.result)); // isso eh para load, add, sub, and, or, not
                     uni_cont.sc = uni_cont.sinais_controle::incrementaPC;
                     is_ciclo_exe_over = 1;
 
@@ -898,7 +918,7 @@ class Ramses{
                 }
 
                 else {
-                    parte_operativa.ra.receive(std::to_string(parte_operativa.unidade_arit.result)); // isso eh para load, add, sub, and, or, not
+                    parte_operativa.rx.receive(std::to_string(parte_operativa.unidade_arit.result)); // isso eh para load, add, sub, and, or, not
                     uni_cont.sc = uni_cont.sinais_controle::incrementaPC;
                     is_ciclo_exe_over = 1;
 
@@ -930,13 +950,14 @@ class Ramses{
             
             case uni_cont.sinais_controle::cargaPC:
 
-                if (parte_operativa.operation_code.return_operation()[1] == "12") {
+                if (parte_operativa.operation_code.return_operation()[1] == "12") { // jsr
                     parte_operativa.program_count.receive(std::stoi(parte_operativa.readmem.return_rdm()[0]) + 1);
                 }
 
                 parte_operativa.program_count.receive(std::stoi(parte_operativa.readmem.return_rdm()[0]));
                 is_ciclo_exe_over = 1;
                 uni_cont.sc = uni_cont.sinais_controle::incrementaPC;
+
             
                 break;
             
@@ -1226,6 +1247,8 @@ int main(int argc, char* argv[]){
     processador.parte_operativa.memoria.M[128][0]="10";
     processador.parte_operativa.memoria.M[129][0]="35";
     processador.parte_operativa.memoria.M[131][0]="5";
+    processador.parte_operativa.memoria.M[138][0]="7";
+    processador.armazenamento.assign({"", "", ""});
 
     std::cout << "BEM VINDO À SIMULAÇÃO DO PROCESSADOR RAMSES\n\naperte qualquer letra + <enter> para começar a simulação\n\n\n";
     

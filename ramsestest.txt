@@ -1,6 +1,10 @@
 ldr A 128
 ldr B 129
-ldr X 130,x
-jmp 10
+ldr X 128
+ldr X 128,x
+jmp 12
+ldr B 131
+ldr A 138
 not A
 str A 130
+hlt
