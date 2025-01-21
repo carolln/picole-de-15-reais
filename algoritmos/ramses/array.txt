@@ -1,0 +1,9 @@
+$percorre um vetor de 3 elementos e preenche cada elemento com o valor 10
+
+ldr X #3
+ldr A #10
+str A 128,X
+sub X #1
+jz 12
+jmp 4
+hlt

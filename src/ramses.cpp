@@ -355,12 +355,12 @@ class Ramses{
         //std::cout << "registrador de instrução: " << parte_operativa.r;
         std::cout << "Flag de controle N: " << N << "\n";
         std::cout << "Flag de controle Z: " << Z << "\n";
-        std::cout << "Flag de controle C: " << Z << "\n";
+        std::cout << "Flag de controle C: " << C << "\n";
         std::cout << "Registrador A: " << parte_operativa.ra.return_reg() << "\n";
         std::cout << "Registrador B: " << parte_operativa.rb.return_reg() << "\n";
         std::cout << "Registrador X: " << parte_operativa.rx.return_reg() << "\n";
         //std::cout << "Memória de dados (Registrador de memória): \n"; // << 
-        std::cout << "Operação executada na ULA: ";
+        //std::cout << "Operação executada na ULA: ";
 
         // switch (std::stoi(parte_operativa.operation_code.return_operation()))
         // {
@@ -406,79 +406,102 @@ class Ramses{
         // }
 
 
-        // std::cout << "Opcode: ";
+        std::cout << "Opcode: ";
         
-        // switch (std::stoi(parte_operativa.operation_code.return_operation()))
-        // {
-        // case 0:
-        //     std::cout << "nop\n";
-        //     break;
+        switch (std::stoi(parte_operativa.operation_code.return_operation()[0]))
+        {
+        case 0:
+            std::cout << "nop\n";
+            break;
         
-        // case 1:
-        //     std::cout << "str\n";
-        //     break;
+        case 1:
+            std::cout << "str\n";
+            break;
         
-        // case 2:
-        //     std::cout << "ldr\n";
-        //     break;
+        case 2:
+            std::cout << "ldr\n";
+            break;
         
-        // case 3:
-        //     std::cout << "add\n";
-        //     break;
+        case 3:
+            std::cout << "add\n";
+            break;
         
-        // case 4:
-        //     std::cout << "or\n";
-        //     break;
+        case 4:
+            std::cout << "or\n";
+            break;
         
-        // case 5:
-        //     std::cout << "and\n";
-        //     break;
+        case 5:
+            std::cout << "and\n";
+            break;
         
-        // case 6:
-        //     std::cout << "not\n";
-        //     break;
+        case 6:
+            std::cout << "not\n";
+            break;
         
-        // case 7:
-        //     std::cout << "sub\n";
-        //     break;
+        case 7:
+            std::cout << "sub\n";
+            break;
         
-        // case 8:
-        //     std::cout << "jmp\n";
-        //     break;
+        case 8:
+            std::cout << "jmp\n";
+            break;
         
-        // case 9:
-        //     std::cout << "jn\n";
-        //     break;
+        case 9:
+            std::cout << "jn\n";
+            break;
         
-        // case 10:
-        //     std::cout << "jz\n";
-        //     break;
+        case 10:
+            std::cout << "jz\n";
+            break;
 
-        // case 11:
-        //     std::cout << "jc\n";
-        //     break;
+        case 11:
+            std::cout << "jc\n";
+            break;
 
-        // case 12:
-        //     std::cout << "jsr\n";
-        //     break;
+        case 12:
+            std::cout << "jsr\n";
+            break;
         
-        // case 13:
-        //     std::cout << "neg\n";
-        //     break;
+        case 13:
+            std::cout << "neg\n";
+            break;
         
-        // case 14:
-        //     std::cout << "shr\n";
-        //     break;
+        case 14:
+            std::cout << "shr\n";
+            break;
         
-        // case 15:
-        //     std::cout << "hlt\n";
-        //     break;
+        case 15:
+            std::cout << "hlt\n";
+            break;
         
-        // default:
-        // std::cout << "-\n";
-        //     break;
-        // }
+        default:
+        std::cout << "-\n";
+            break;
+        }
 
+        std::cout << "Modo de endereçamento: ";
+
+        switch (std::stoi(parte_operativa.operation_code.return_operation()[2]))
+        {
+        case 0:
+            std::cout << "direto\n";
+            break;
+        
+        case 1:
+            std::cout << "indireto\n";
+            break;
+
+        case 2:
+            std::cout << "constante\n";
+            break;
+        
+        case 3:
+            std::cout << "indexado\n";
+            break;
+        default:
+            std::cout << "indef\n";
+            break;
+        }
         std::cout << "\nPress any letter + <enter> to go on\n\n\n";
         
 
@@ -500,7 +523,7 @@ class Ramses{
     void print_final() {
 
 
-        std::cout << "\nDADOS FINAIS:\n";
+        std::cout << "\nDADOS FINAIS:\n\n";
 
 
 
@@ -511,9 +534,16 @@ class Ramses{
         //std::cout << "Flag de controle Z: " << Z << "\n";
         std::cout << "Registrador A final: " << parte_operativa.ra.return_reg() << "\n";
         std::cout << "Registrador B final: " << parte_operativa.ra.return_reg() << "\n";
-        std::cout << "Registrador X final: " << parte_operativa.ra.return_reg() << "\n";
+        std::cout << "Registrador X final: " << parte_operativa.ra.return_reg() << "\n\n";
         //std::cout << "Memória de dados (Registrador de memória): \n"; // << 
+        std::cout << "Início da memória de dados ao final: \n";
 
+        for (int i = 128; i < 144; i++) {
+            std::cout << "MEM[ " << i << " ] = " << parte_operativa.memoria.M[i][0] << "\t";
+            if (i == 136) {
+                std::cout << "\n";
+            }
+        }
         
         
 
@@ -633,19 +663,19 @@ class Ramses{
                     uni_cont.sc = uni_cont.sinais_controle::incrementaPC;
                     break;
                 }
-                if (parte_operativa.readmem.return_rdm()[0] == "6") { // not
+                else if (parte_operativa.readmem.return_rdm()[0] == "6") { // not
                     is_ciclo_busca_over = true;
-                    uni_cont.sc = uni_cont.sinais_controle::selUAL;
+                    uni_cont.sc = uni_cont.sinais_controle::mux_ula;
                     break;
                 }
-                if (parte_operativa.readmem.return_rdm()[0] == "13") { // neg
+                else if (parte_operativa.readmem.return_rdm()[0] == "13") { // neg
                     is_ciclo_busca_over = true;
-                    uni_cont.sc = uni_cont.sinais_controle::selUAL;
+                    uni_cont.sc = uni_cont.sinais_controle::mux_ula;
                     break;
                 }
-                if (parte_operativa.readmem.return_rdm()[0] == "14") { // shr
+                else if (parte_operativa.readmem.return_rdm()[0] == "14") { // shr
                     is_ciclo_busca_over = true;
-                    uni_cont.sc = uni_cont.sinais_controle::selUAL;
+                    uni_cont.sc = uni_cont.sinais_controle::mux_ula;
                     break;
                 }
 
@@ -653,6 +683,8 @@ class Ramses{
                     uni_cont.sc = uni_cont.sinais_controle::incrementaPC;
                     sel_rem = 2;
                 }
+
+                uni_cont.sc = uni_cont.sinais_controle::incrementaPC;
 
                 break;
             
@@ -672,7 +704,7 @@ class Ramses{
                 if (parte_operativa.operation_code.return_operation()[2] == "2") { // eh constante, a vida eh bonita
                     // acabamos de pegar a segunda palavra
                     // pra a gente ir direto pra a ula, o modo de end eh direto
-                    uni_cont.sc = uni_cont.sinais_controle::selUAL;
+                    uni_cont.sc = uni_cont.sinais_controle::mux_ula;
                 }
                 else { // precisa pegar a data
 
@@ -691,6 +723,10 @@ class Ramses{
 
                 else{
                     parte_operativa.rem.str(std::stoi(parte_operativa.readmem.return_rdm()[0])); // veio um endereco na rdm; vamos entrar nele
+                    if ((parte_operativa.operation_code.return_operation()[0] == "10" && Z == 1) || (parte_operativa.operation_code.return_operation()[0] == "11" && C == 1) || (parte_operativa.operation_code.return_operation()[0] == "9" && N == 1)) {
+                        uni_cont.sc = uni_cont.sinais_controle::incrementaPC;
+                        is_ciclo_exe_over = 1;
+                    }
                 }
 
                 uni_cont.sc = uni_cont.sinais_controle::read;
@@ -702,6 +738,7 @@ class Ramses{
 
                 clock+=3;
                 
+                //armazenamento = parte_operativa.memoria.M[parte_operativa.rem.return_rem()];
                 armazenamento = parte_operativa.memoria.read(parte_operativa.rem.return_rem());
                 uni_cont.sc = uni_cont.sinais_controle::cargaRDM;
                 break;
@@ -734,10 +771,14 @@ class Ramses{
                         clock+=1;
                     }
                     else if (parte_operativa.operation_code.return_operation()[0] == "9"){ // jn
+                        clock+=1;
                         if (N) {
                             uni_cont.sc = uni_cont.sinais_controle::cargaPC;
                         }
-                        clock+=1;
+                        else {
+                            is_ciclo_exe_over = true;
+                            uni_cont.sc = uni_cont.sinais_controle::incrementaPC;
+                        }
                     }
                     else if (parte_operativa.operation_code.return_operation()[0] == "10"){ // jz
                         clock+=1;
@@ -746,12 +787,20 @@ class Ramses{
                             uni_cont.sc = uni_cont.sinais_controle::cargaPC;
                             //parte_operativa.program_count.receive(std::stoi(parte_operativa.readmem.return_rdm()));
                         }
+                        else {
+                            is_ciclo_exe_over = true;
+                            uni_cont.sc = uni_cont.sinais_controle::incrementaPC;
+                        }
                     }
                     else if (parte_operativa.operation_code.return_operation()[0] == "11"){ // jc
                         clock+=1;
                         if(C)
                         {
                             uni_cont.sc = uni_cont.sinais_controle::cargaPC;
+                        }
+                        else {
+                            is_ciclo_exe_over = true;
+                            uni_cont.sc = uni_cont.sinais_controle::incrementaPC;
                         }
                     }
                     else if (parte_operativa.operation_code.return_operation()[0] == "12"){ // jsr
@@ -774,10 +823,10 @@ class Ramses{
                 // ter uma variavel de registrador;
                 // ai dependendo do opcode essa variavel muda
 
-                if (parte_operativa.operation_code.return_operation()[0] == "0") {// RA
+                if (parte_operativa.operation_code.return_operation()[1] == "A" || parte_operativa.operation_code.return_operation()[1] == "a") {// RA
                     op1 = parte_operativa.ra.return_reg();
                 }
-                else if (parte_operativa.operation_code.return_operation()[0] == "1") {
+                else if (parte_operativa.operation_code.return_operation()[1] == "B" || parte_operativa.operation_code.return_operation()[1] == "b") {
                     op1 = parte_operativa.rb.return_reg();
                 }
                 else {
@@ -793,6 +842,7 @@ class Ramses{
 
                 N = 0; // perguntar a kreutz about this - se a ula usa n e z e tals tipo a gente pode setar aqui?
                 Z = 0;
+                C = 0;
                 clock+=1;
                 // eu nao quero return operation, eu quero
 
@@ -833,7 +883,7 @@ class Ramses{
                     parte_operativa.unidade_arit.note(op1);
                 }
                 else if (parte_operativa.operation_code.return_operation()[0] == "7"){ // sub
-                    parte_operativa.unidade_arit.note(op1);
+                    parte_operativa.unidade_arit.sub(op1, parte_operativa.readmem.return_rdm()[0]);
                 }
                 else if (parte_operativa.operation_code.return_operation()[0] == "13"){ // neg
                     parte_operativa.unidade_arit.neg(op1);
@@ -845,17 +895,8 @@ class Ramses{
                 if (parte_operativa.unidade_arit.result <= 0) {
                     uni_cont.sc = uni_cont.sinais_controle::cargaNZ;
                 }
-                else {
-
-                    /*if (parte_operativa.operation_code.return_operation()[0] == "0") {// RA
-                        uni_cont.sc = uni_cont.sinais_controle::cargaRA;
-                    }
-                    else if (parte_operativa.operation_code.return_operation()[0] == "1") {
-                        uni_cont.sc = uni_cont.sinais_controle::cargaRB;
-                    }
-                    else {
-                        uni_cont.sc = uni_cont.sinais_controle::cargaRX;
-                    }*/
+                if (parte_operativa.unidade_arit.result >= 128) {
+                    uni_cont.sc = uni_cont.sinais_controle::cargaC;
                 }
 
 
@@ -936,10 +977,10 @@ class Ramses{
                 }
                 
 
-                if (parte_operativa.operation_code.return_operation()[0] == "0") {// RA
+                if (parte_operativa.operation_code.return_operation()[1] == "A" || parte_operativa.operation_code.return_operation()[1] == "a") {// RA
                     uni_cont.sc = uni_cont.sinais_controle::cargaRA;
                 }
-                else if (parte_operativa.operation_code.return_operation()[0] == "1") {
+                else if (parte_operativa.operation_code.return_operation()[1] == "B" || parte_operativa.operation_code.return_operation()[1] == "b") {
                     uni_cont.sc = uni_cont.sinais_controle::cargaRB;
                 }
                 else {
@@ -947,6 +988,24 @@ class Ramses{
                 }
                 
                 break;
+            
+            case uni_cont.sinais_controle::cargaC:
+
+                C = 1;
+                
+
+                if (parte_operativa.operation_code.return_operation()[1] == "A" || parte_operativa.operation_code.return_operation()[1] == "a") {// RA
+                    uni_cont.sc = uni_cont.sinais_controle::cargaRA;
+                }
+                else if (parte_operativa.operation_code.return_operation()[1] == "B" || parte_operativa.operation_code.return_operation()[1] == "b") {
+                    uni_cont.sc = uni_cont.sinais_controle::cargaRB;
+                }
+                else {
+                    uni_cont.sc = uni_cont.sinais_controle::cargaRX;
+                }
+                
+                break;
+            
             
             case uni_cont.sinais_controle::cargaPC:
 
@@ -1207,7 +1266,9 @@ int main(int argc, char* argv[]){
             if(inputs[2][0]=='#'){
                 MEMORIA[cont][2] = "2";
                 cont++;
-                MEMORIA[cont][0]=inputs[1].substr(1);
+                MEMORIA[cont][0]=inputs[2].substr(1);
+                //std::cout << inputs[2][0] << inputs[2][1] << "\n";
+                cont++;
             }
             else if(index != string::npos){
                 if(is_number(inputs[2].substr(0, index))){
@@ -1246,7 +1307,12 @@ int main(int argc, char* argv[]){
     //use esse espaço para preencher a memoria com as variáveis nas posições 128-255
     processador.parte_operativa.memoria.M[128][0]="10";
     processador.parte_operativa.memoria.M[129][0]="35";
+    processador.parte_operativa.memoria.M[130][0]="5";
     processador.parte_operativa.memoria.M[131][0]="5";
+    processador.parte_operativa.memoria.M[132][0]="8";
+    processador.parte_operativa.memoria.M[133][0]="8";
+    processador.parte_operativa.memoria.M[134][0]="8";
+    processador.parte_operativa.memoria.M[135][0]="8";
     processador.parte_operativa.memoria.M[138][0]="7";
     processador.armazenamento.assign({"", "", ""});
 

@@ -1,10 +1,4 @@
-ldr A 128
-ldr B 129
-ldr X 128
-ldr X 128,x
-jmp 12
-ldr B 131
-ldr A 138
-not A
+ldr A #12
+sub A #1
 str A 130
 hlt
