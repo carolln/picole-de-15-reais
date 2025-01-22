@@ -1,0 +1,5 @@
+$Somar as variaveis nas posições 128 e 129 e guardar no 139
+ldr A 128
+add A 129
+str A 139
+hlt

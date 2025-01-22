@@ -1,0 +1,5 @@
+$variáveis no 128 e 129, resultado no 139
+ldr A 128
+sub A 129
+str A 139
+hlt

@@ -68,9 +68,10 @@ class REM{
 
 class RDM{
 
+    public:
+
     vector<string> rdm;
     
-    public:
 
     void str(vector<string> a) {
         rdm = a;
@@ -362,49 +363,6 @@ class Ramses{
         //std::cout << "Memória de dados (Registrador de memória): \n"; // << 
         //std::cout << "Operação executada na ULA: ";
 
-        // switch (std::stoi(parte_operativa.operation_code.return_operation()))
-        // {
-        // case 1:
-        //     std::cout << "str\n";
-        //     break;
-        
-        // case 2:
-        //     std::cout << "ldr\n";
-        //     break;
-        
-        // case 3:
-        //     std::cout << "add\n";
-        //     break;
-        
-        // case 4:
-        //     std::cout << "or\n";
-        //     break;
-        
-        // case 5:
-        //     std::cout << "and\n";
-        //     break;
-        
-        // case 6:
-        //     std::cout << "not\n";
-        //     break;
-        
-        // case 7:
-        //     std::cout << "sub\n";
-        //     break;
-        
-        // case 13:
-        //     std::cout << "neg\n";
-        //     break;
-        
-        // case 14:
-        //     std::cout << "shr\n";
-        //     break;
-        
-        // default:
-        // std::cout << "-\n";
-        //     break;
-        // }
-
 
         std::cout << "Opcode: ";
         
@@ -533,8 +491,8 @@ class Ramses{
         //std::cout << "Flag de controle N:" << N << "\n";
         //std::cout << "Flag de controle Z: " << Z << "\n";
         std::cout << "Registrador A final: " << parte_operativa.ra.return_reg() << "\n";
-        std::cout << "Registrador B final: " << parte_operativa.ra.return_reg() << "\n";
-        std::cout << "Registrador X final: " << parte_operativa.ra.return_reg() << "\n\n";
+        std::cout << "Registrador B final: " << parte_operativa.rb.return_reg() << "\n";
+        std::cout << "Registrador X final: " << parte_operativa.rx.return_reg() << "\n\n";
         //std::cout << "Memória de dados (Registrador de memória): \n"; // << 
         std::cout << "Início da memória de dados ao final: \n";
 
@@ -633,6 +591,17 @@ class Ramses{
 
                 else { // EH A SEGUNDA VOLTA
 
+                    if (parte_operativa.operation_code.return_operation()[2] == "3") {
+
+                        int a = std::stoi(parte_operativa.readmem.return_rdm()[0]);
+                        int b = std::stoi(parte_operativa.rx.return_reg());
+                        int c = a + b;
+                        string d = std::to_string(c);
+                        armazenamento[0] = d;
+
+                        parte_operativa.readmem.rdm[0] = d;
+                    }
+
                     is_ciclo_busca_over = true;
                     uni_cont.sc = uni_cont.sinais_controle::mux_rem;
 
@@ -701,7 +670,7 @@ class Ramses{
             {
             case uni_cont.sinais_controle::mux_rem:
 
-                if (parte_operativa.operation_code.return_operation()[2] == "2") { // eh constante, a vida eh bonita
+                if (parte_operativa.operation_code.return_operation()[2] == "2" || parte_operativa.operation_code.return_operation()[0] == "1") { // eh constante, a vida eh bonita (ou store)
                     // acabamos de pegar a segunda palavra
                     // pra a gente ir direto pra a ula, o modo de end eh direto
                     uni_cont.sc = uni_cont.sinais_controle::mux_ula;
@@ -717,7 +686,7 @@ class Ramses{
 
             case uni_cont.sinais_controle::cargaREM:
 
-                if (parte_operativa.operation_code.return_operation()[2] == "3") {
+                if (parte_operativa.operation_code.return_operation()[2] == "3") { // o rx la
                     parte_operativa.rem.str(std::stoi(parte_operativa.readmem.return_rdm()[0]) + std::stoi(parte_operativa.rx.return_reg()));
                 }
 
@@ -810,7 +779,7 @@ class Ramses{
 
                     else { // eh 1-6 ! vamos para a ula
 
-                        uni_cont.sc = uni_cont.sinais_controle::selUAL;
+                        uni_cont.sc = uni_cont.sinais_controle::mux_ula;
                     }
 
                 }
@@ -1030,10 +999,10 @@ class Ramses{
                     break;
                 }
 
-                if (parte_operativa.operation_code.return_operation()[1] == "0") {
+                if (parte_operativa.operation_code.return_operation()[1] == "A") { // escrevendo o que ta no registrador no indice passado
                     parte_operativa.memoria.write(parte_operativa.ra.return_reg(), std::stoi(parte_operativa.readmem.return_rdm()[0]));
                 }
-                else if (parte_operativa.operation_code.return_operation()[1] == "1") {
+                else if (parte_operativa.operation_code.return_operation()[1] == "B") {
                     parte_operativa.memoria.write(parte_operativa.rb.return_reg(), std::stoi(parte_operativa.readmem.return_rdm()[0]));
                 }
                 else {
