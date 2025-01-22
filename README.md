@@ -1,2 +1,2 @@
 # picole-de-15-reais
-kreutz :(
+pls leia o pdf com o relatório !
